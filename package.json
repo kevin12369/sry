@@ -1,0 +1,21 @@
+{
+  "name": "sry-monorepo",
+  "private": true,
+  "version": "0.0.1",
+  "packageManager": "pnpm@9.0.0",
+  "scripts": {
+    "dev:web": "pnpm --filter @sry/web dev",
+    "dev:worker": "pnpm --filter @sry/worker dev",
+    "build:web": "pnpm --filter @sry/web build",
+    "build:worker": "pnpm --filter @sry/worker build",
+    "test": "pnpm -r test",
+    "deploy:web": "pnpm --filter @sry/web deploy",
+    "deploy:worker": "pnpm --filter @sry/worker deploy"
+  },
+  "devDependencies": {
+    "typescript": "5.4.5"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
