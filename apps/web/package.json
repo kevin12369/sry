@@ -1,0 +1,37 @@
+{
+  "name": "@sry/web",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -p 3000",
+    "build": "next build",
+    "start": "next start",
+    "test": "vitest run",
+    "deploy": "wrangler pages deploy ./out --project-name=sry-web"
+  },
+  "dependencies": {
+    "@sry/shared": "workspace:*",
+    "next": "14.2.5",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "react-hook-form": "7.52.1",
+    "@hookform/resolvers": "3.9.0",
+    "zod": "3.23.8",
+    "clsx": "2.1.1",
+    "lucide-react": "0.412.0"
+  },
+  "devDependencies": {
+    "@types/node": "20.14.10",
+    "@types/react": "18.3.3",
+    "@types/react-dom": "18.3.0",
+    "@vitejs/plugin-react": "4.3.1",
+    "autoprefixer": "10.4.19",
+    "happy-dom": "14.12.3",
+    "msw": "2.3.4",
+    "postcss": "8.4.39",
+    "tailwindcss": "3.4.6",
+    "typescript": "5.4.5",
+    "vitest": "1.6.0",
+    "wrangler": "3.65.1"
+  }
+}
