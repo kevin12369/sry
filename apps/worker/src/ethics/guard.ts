@@ -5,7 +5,7 @@ export type EthicsResult =
   | { ok: true }
   | { ok: false; reason: RejectReason };
 
-const REJECT_MESSAGES: Record<RejectReason, string> = {
+export const REJECT_MESSAGES: Record<RejectReason, string> = {
   'too-long': '输入超出 300 字上限',
   'too-short': '输入太短,请至少 5 个字',
   'real-person': '检测到可能针对真人的恶意内容,已拒绝',
