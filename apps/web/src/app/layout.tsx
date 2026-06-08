@@ -11,6 +11,10 @@ export const metadata = {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="zh-CN">
+      <head>
+        <script defer src="https://static.cloudflareinsights.com/beacon.min.js"
+          data-cf-beacon={JSON.stringify({ token: 'REPLACE_BEACON_TOKEN' })} />
+      </head>
       <body className="min-h-screen bg-slate-50 text-slate-900">
         <ToastProvider>
           <DisclaimerBanner />
