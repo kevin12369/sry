@@ -10,3 +10,4 @@ out
 coverage
 .vitest
 *.tsbuildinfo
+apps/*/next-env.d.ts
