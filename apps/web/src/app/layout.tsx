@@ -1,11 +1,11 @@
 import './globals.css';
 import type { ReactNode } from 'react';
-import { ToastProvider } from '@/components/ui/toast.js';
-import { DisclaimerBanner } from '@/components/DisclaimerBanner.js';
+import { MailBanner } from '@/components/MailBanner';
+import { ToastProvider } from '@/components/ui/toast';
 
 export const metadata = {
   title: '嘴笨助手 (Sry)',
-  description: '5 种风格的道歉信生成器,1 次请求 30 秒挑一封能发的。',
+  description: '道歉这件难开口的事,让 AI 帮你起个稿',
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
@@ -17,7 +17,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       </head>
       <body className="min-h-screen bg-slate-50 text-slate-900">
         <ToastProvider>
-          <DisclaimerBanner />
+          <MailBanner />
           {children}
         </ToastProvider>
       </body>
