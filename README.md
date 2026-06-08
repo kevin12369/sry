@@ -104,4 +104,51 @@
 
 ---
 
+## 🌟 项目亮点
+
+**做了什么**
+
+- 5 套手调 Prompt 模板(搞笑 / 真诚 / 耍赖 / 法务冷面 / 已读不回),驱动 LLM 一次出 5 封差异化道歉信
+- Next.js 14 静态导出 + Cloudflare Worker:5 路并发 LLM 编排、`Promise.allSettled` + 8s/style timeout、Worker KV 滑窗限流
+- 3 层伦理护栏(关键词黑名单 + 50 姓氏×恶意词共现 + IP rate-limit),强 disclaimer + 永不代发 + 零输入持久化
+- 客户端优先 + URL hash base64 分享(零服务端存储),5 封信"信封堆叠"交互,5 视图状态机(对话 / 信堆 / 信纸 / 分享 / 拒绝)
+
+**怎么做到的**
+
+- `apps/web` — Next.js 14(App Router, `output: 'export'`) → Cloudflare Pages
+- `apps/worker` — Cloudflare Worker(LLM 代理 + 3 层伦理护栏)→ Cloudflare Workers
+- `packages/shared` — types + zod schemas,前后端共用
+- 0 后端持久化:Worker 只在 KV 存限流/配额计数(无 PII),分享链接走 URL hash
+- 5 封信"信封堆叠"交互,牛皮纸纹理 + 火漆/邮戳/邮票 SVG 视觉,**0 web font**(系统字体栈)
+
+**跑起来的数字**
+
+- 128 测试通过(6 shared + 79 worker + 43 web)
+- TypeScript strict 干净,First Load JS 108 kB
+- 部署在 [sry-web.pages.dev](https://sry-web.pages.dev) + [sry-worker.491750329.workers.dev](https://sry-worker.491750329.workers.dev)
+
+**本地开发**
+
+```bash
+pnpm install
+pnpm dev:worker   # http://127.0.0.1:8787
+NEXT_PUBLIC_API_BASE=http://127.0.0.1:8787 pnpm dev:web   # http://localhost:3000
+```
+
+**测试 + e2e**
+
+```bash
+pnpm test          # 128 tests
+pnpm e2e           # 验证 live 部署: CORS / health / gen / ethics / Pages
+```
+
+**部署**
+
+```bash
+pnpm deploy:worker   # wrangler deploy
+pnpm deploy:web      # wrangler pages deploy ./out --project-name=sry-web
+```
+
+---
+
 > *这项目代码已经写完 100%,54 个 task 全部 commit。是我 5 个项目里第一个完整跑通到 deploy 的。*

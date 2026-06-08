@@ -170,6 +170,13 @@ export default function Page() {
       <div className="mt-6">
         <ChatForm onSubmit={handleSubmit} />
       </div>
+      <footer className="mt-12 text-center text-xs text-muted">
+        被误伤了?写信给{' '}
+        <a href="mailto:491750329@qq.com" className="text-seal hover:underline wavy-underline">
+          491750329@qq.com
+        </a>
+        {' '}反馈。
+      </footer>
       <SettingsDrawer
         open={settingsOpen}
         onClose={() => setSettingsOpen(false)}

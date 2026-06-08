@@ -9,6 +9,7 @@
     "build:web": "pnpm --filter @sry/web build",
     "build:worker": "pnpm --filter @sry/worker build",
     "test": "pnpm -r test",
+    "e2e": "bash scripts/e2e.sh",
     "deploy:web": "pnpm --filter @sry/web deploy",
     "deploy:worker": "pnpm --filter @sry/worker deploy"
   },
