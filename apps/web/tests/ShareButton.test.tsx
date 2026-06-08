@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { render, screen, fireEvent, cleanup } from '@testing-library/react';
 import { ShareButton } from '../src/components/ShareButton.js';
 import { ToastProvider } from '../src/components/ui/toast.js';
 
@@ -7,10 +7,16 @@ const letters = { 'funny':'a','sincere':'b','shameless':'c','legal-cold':'d','si
 
 describe('ShareButton', () => {
   beforeEach(() => { vi.restoreAllMocks(); });
+  afterEach(() => { cleanup(); });
 
   it('writes #share=... to location.hash on click', () => {
-    // @ts-expect-error override
-    navigator.clipboard = { writeText: vi.fn().mockResolvedValue(undefined) };
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    // navigator.clipboard is a getter in modern environments, so use defineProperty.
+    Object.defineProperty(navigator, 'clipboard', {
+      configurable: true,
+      writable: true,
+      value: { writeText },
+    });
     const write = vi.spyOn(navigator.clipboard, 'writeText');
     render(
       <ToastProvider>

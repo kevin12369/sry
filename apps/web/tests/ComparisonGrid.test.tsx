@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { describe, it, expect, afterEach } from 'vitest';
+import { render, screen, cleanup } from '@testing-library/react';
 import { ComparisonGrid } from '../src/components/ComparisonGrid.js';
 import { ToastProvider } from '../src/components/ui/toast.js';
 import type { StyleMap } from '@sry/shared';
@@ -13,6 +13,8 @@ const letters: StyleMap = {
 };
 
 describe('ComparisonGrid', () => {
+  afterEach(() => cleanup());
+
   it('renders 5 cards', () => {
     render(
       <ToastProvider>
