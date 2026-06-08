@@ -6,6 +6,7 @@ import { SkeletonCard } from '@/components/SkeletonCard.js';
 import { ShareButton } from '@/components/ShareButton.js';
 import { SettingsDrawer } from '@/components/SettingsDrawer.js';
 import { RejectScreen } from '@/components/RejectScreen.js';
+import { AllFailedScreen } from '@/components/AllFailedScreen.js';
 import { useGenerate } from '@/hooks/useGenerate.js';
 import { useShareHash } from '@/hooks/useShare.js';
 import { useSettings } from '@/hooks/useSettings.js';
@@ -113,10 +114,17 @@ export default function Page() {
               {STYLES.map((s) => <SkeletonCard key={s} />)}
             </div>
           ) : letters ? (
-            <>
-              <div className="flex justify-end"><ShareButton letters={letters} situation={''} personality={'direct'} /></div>
-              <ComparisonGrid letters={letters} loading={false} onRetry={handleRetry} sort={sort} />
-            </>
+            STYLES.every((s) => !letters[s]) ? (
+              <AllFailedScreen onRetry={() => run(
+                { situation: sharedInput?.situation ?? '', personality: (sharedInput?.personality as 'sensitive' | 'direct' | 'cold') ?? 'direct' },
+                { model: settings.model, apiKey: settings.apiKey }
+              )} />
+            ) : (
+              <>
+                <div className="flex justify-end"><ShareButton letters={letters} situation={''} personality={'direct'} /></div>
+                <ComparisonGrid letters={letters} loading={false} onRetry={handleRetry} sort={sort} />
+              </>
+            )
           ) : (
             <p className="text-sm text-slate-500">先在左侧输入情境,生成 5 种风格。</p>
           )}
