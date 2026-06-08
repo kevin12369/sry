@@ -135,6 +135,9 @@ export default function Page() {
       </section>
 
       <SettingsDrawer open={settingsOpen} onClose={() => setSettingsOpen(false)} settings={settings} onChange={setSettings} />
+      <footer className="text-xs text-slate-500 text-center pt-4">
+        被误伤了?写信给 <a className="underline" href="mailto:feedback@REPLACE.example">feedback@REPLACE.example</a> 反馈。
+      </footer>
     </main>
   );
 }
