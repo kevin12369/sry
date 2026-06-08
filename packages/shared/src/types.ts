@@ -21,7 +21,7 @@ export type RejectReason =
   | 'quota-exceeded'
   | 'kill-switch';
 
-export type ModelId = 'workers-ai' | 'gemini-flash' | 'claude-haiku';
+export type ModelId = 'workers-ai' | 'gemini-flash' | 'claude-haiku' | 'deepseek';
 
 export interface GenerateRequest {
   situation: string;

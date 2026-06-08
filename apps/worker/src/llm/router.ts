@@ -24,5 +24,9 @@ export function pickClient({ model, headers, env }: PickArgs): LLMClient {
       if (!key) throw new Error('claude api key missing');
       return new ClaudeHaikuClient(key);
     }
+    case 'deepseek': {
+      // TODO(usage-settings-plan Task 2+): wire DeepSeek client.
+      throw new Error('deepseek client not yet wired');
+    }
   }
 }

@@ -8,6 +8,7 @@ const MODEL_LABELS: Record<ModelId, string> = {
   'workers-ai': 'Workers AI (免费,中文风格略弱)',
   'gemini-flash': 'Gemini 2.0 Flash (免费,推荐)',
   'claude-haiku': 'Claude 3.5 Haiku (需 key,质量最好)',
+  'deepseek': 'DeepSeek (需 key)',
 };
 
 const STORAGE_KEY = 'sry:settings:v1';

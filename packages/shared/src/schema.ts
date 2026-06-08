@@ -25,3 +25,5 @@ export const SharePayloadSchema = z.object({
 export const RejectReasonSchema = z.enum([
   'too-long', 'too-short', 'real-person', 'harassment', 'rate-limit', 'quota-exceeded', 'kill-switch',
 ]);
+
+export const ModelIdSchema = z.enum(['workers-ai', 'gemini-flash', 'claude-haiku', 'deepseek']);
