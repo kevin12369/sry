@@ -7,8 +7,8 @@ binding = "AI"
 
 [[kv_namespaces]]
 binding = "RL"
-id = "REPLACE_WITH_KV_ID"
-preview_id = "REPLACE_WITH_KV_PREVIEW_ID"
+id = "9217c59571364298bba6ce7e0865f6ef"
+preview_id = "36cadac2d46740819456833fa257a37f"
 
 [vars]
 LLM_KILL_SWITCH = "false"
