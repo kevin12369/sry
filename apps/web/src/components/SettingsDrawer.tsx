@@ -1,7 +1,8 @@
 'use client';
 import { Drawer } from './ui/drawer.js';
 import { saveJSON } from '@/lib/storage.js';
-import type { ModelId, Settings } from '@/hooks/useSettings.js';
+import type { ModelId } from '@sry/shared';
+import type { Settings } from '@/hooks/useSettings.js';
 
 const MODEL_LABELS: Record<ModelId, string> = {
   'workers-ai': 'Workers AI (免费,中文风格略弱)',
