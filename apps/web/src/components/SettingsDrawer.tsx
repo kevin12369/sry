@@ -35,7 +35,7 @@ export function SettingsDrawer({
   }
   return (
     <Drawer open={open} onClose={onClose}>
-      <h2 className="text-lg font-semibold mb-4">设置</h2>
+      <h2 className="text-lg font-semibold mb-4 text-ink">设置</h2>
       <p className="text-xs text-slate-500 mb-4">你的 Key 只在本浏览器 localStorage,我们服务端零存储。</p>
 
       <label className="block text-sm font-medium text-slate-700">API Key</label>
@@ -44,7 +44,7 @@ export function SettingsDrawer({
         autoComplete="off"
         defaultValue={settings.apiKey}
         onBlur={(e) => handleApiKeyBlur(e.target.value)}
-        className="mt-1 w-full rounded border border-slate-300 p-2 text-sm"
+        className="mt-1 w-full rounded border border-slate-300 bg-cream border-[#c9a98d] focus:border-seal p-2 text-sm"
         aria-label="API Key"
       />
 
@@ -52,7 +52,7 @@ export function SettingsDrawer({
       <select
         value={settings.model}
         onChange={(e) => handleModelChange(e.target.value as ModelId)}
-        className="mt-1 w-full rounded border border-slate-300 p-2 text-sm"
+        className="mt-1 w-full rounded border border-slate-300 bg-cream border-[#c9a98d] focus:border-seal p-2 text-sm"
         aria-label="模型"
       >
         {(Object.keys(MODEL_LABELS) as ModelId[]).map((m) => (
@@ -65,7 +65,7 @@ export function SettingsDrawer({
         type="number" min={0} step={0.5}
         defaultValue={settings.dailyCap}
         onBlur={(e) => handleDailyCapBlur(Number(e.target.value))}
-        className="mt-1 w-full rounded border border-slate-300 p-2 text-sm"
+        className="mt-1 w-full rounded border border-slate-300 bg-cream border-[#c9a98d] focus:border-seal p-2 text-sm"
       />
       <p className="text-xs text-slate-500 mt-1">默认 0 表示不限。</p>
     </Drawer>

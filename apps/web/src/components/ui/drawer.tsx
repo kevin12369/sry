@@ -11,7 +11,7 @@ export function Drawer({ open, onClose, children }: { open: boolean; onClose: ()
       />
       <div
         className={clsx(
-          'absolute right-0 top-0 h-full w-80 bg-white shadow-xl p-4 transition-transform',
+          'absolute right-0 top-0 h-full w-80 bg-cream shadow-lifted border-l border-[#c9a98d] p-5 transition-transform',
           open ? 'translate-x-0' : 'translate-x-full'
         )}
       >
