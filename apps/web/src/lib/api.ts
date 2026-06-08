@@ -7,7 +7,7 @@ export interface ApiOpts {
 }
 
 export async function generateLetters(req: GenerateRequest, opts: ApiOpts = {}): Promise<GenerateResponse> {
-  const base = opts.baseUrl ?? (typeof window !== 'undefined' ? (window as unknown as { __SRY_API__?: string }).__SRY_API__ : undefined) ?? '';
+  const base = opts.baseUrl ?? process.env.NEXT_PUBLIC_API_BASE ?? (typeof window !== 'undefined' ? (window as unknown as { __SRY_API__?: string }).__SRY_API__ : undefined) ?? '';
   const headers: Record<string, string> = { 'content-type': 'application/json' };
   if (opts.model) headers['x-model'] = opts.model;
   if (opts.apiKey) headers['x-api-key'] = opts.apiKey;
