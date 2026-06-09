@@ -80,9 +80,27 @@ describe('<SettingsDrawer />', () => {
         <SettingsDrawer open={true} onClose={() => {}} settings={defaultSettings} onChange={() => {}} />
       </Drawer>
     );
-    fireEvent.click(screen.getByText(/清除缓存/));
+    fireEvent.click(screen.getByText(/清除.*缓存/));
     expect(window.localStorage.getItem(STORAGE_KEY)).toBeNull();
     expect(reloadMock).toHaveBeenCalled();
     confirmSpy.mockRestore();
+  });
+
+  // NEW TEST — danger zone must be reachable regardless of content length
+  it('危险区 buttons are inside a flex-shrink-0 container (always visible)', () => {
+    const { container } = render(
+      <Drawer open={true} onClose={() => {}}>
+        <SettingsDrawer open={true} onClose={() => {}} settings={defaultSettings} onChange={() => {}} />
+      </Drawer>
+    );
+    // The danger-zone section must have flex-shrink-0 so it doesn't compress
+    const dangerBtn = screen.getByText(/清除.*缓存/);
+    let el: HTMLElement | null = dangerBtn.parentElement;
+    let foundShrink = false;
+    while (el && el !== container) {
+      if (el.className.includes('flex-shrink-0')) { foundShrink = true; break; }
+      el = el.parentElement;
+    }
+    expect(foundShrink).toBe(true);
   });
 });
