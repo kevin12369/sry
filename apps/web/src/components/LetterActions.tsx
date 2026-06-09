@@ -33,7 +33,7 @@ export function LetterActions({ body, allLetters, onRetry, onClose }: Props) {
         onClick={onClose}
         className="ml-auto text-sm text-muted hover:text-ink self-center"
       >
-        ← 返回信堆
+        ← 返回
       </button>
     </div>
   );

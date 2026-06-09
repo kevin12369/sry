@@ -46,6 +46,13 @@ export default function Page() {
       { model: settings.model, apiKey: settings.apiKey });
   }
 
+  const styles = letters ? (Object.keys(letters) as Style[]) : [];
+  const openedIndex = opened ? styles.indexOf(opened) : -1;
+  const prevStyle = styles[(openedIndex - 1 + styles.length) % styles.length];
+  const nextStyle = styles[(openedIndex + 1) % styles.length];
+  const handlePrev = () => setOpened(prevStyle);
+  const handleNext = () => setOpened(nextStyle);
+
   // 1. Share view
   if (sharedPayload) {
     return (
@@ -120,6 +127,10 @@ export default function Page() {
             allLetters={letters}
             onRetry={handleRetry}
             onClose={() => setOpened(null)}
+            onPrev={handlePrev}
+            onNext={handleNext}
+            currentIndex={openedIndex + 1}
+            totalCount={styles.length}
           />
         </div>
         <SettingsDrawer
@@ -151,7 +162,7 @@ export default function Page() {
       <main className="min-h-screen py-6 px-4 max-w-2xl mx-auto">
         <HandwrittenLogo onClickSettings={() => setSettingsOpen(true)} />
         <div className="mt-6">
-          <LetterStack letters={letters} onOpen={setOpened} />
+          <LetterStack letters={letters} onOpen={setOpened} opened={opened} />
         </div>
         <SettingsDrawer
           open={settingsOpen}
