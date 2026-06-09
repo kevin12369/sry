@@ -1,29 +1,42 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, fireEvent, screen } from '@testing-library/react';
-import { Envelope } from '@/components/Envelope';
+import { EnvelopeRow } from '@/components/Envelope';
 
-describe('<Envelope />', () => {
+describe('<EnvelopeRow />', () => {
   const props = {
     style: 'funny' as const,
-    body: '老王,昨晚那事,哈哈',
-    index: 0,
-    expanded: false,
+    body: '老王,昨晚那事,哈哈,我觉得吧',
+    isOpen: false,
     onClick: vi.fn(),
   };
 
-  it('shows the style emoji and a snippet when collapsed', () => {
-    render(<Envelope {...props} />);
+  it('shows the style emoji, Chinese label, and body snippet', () => {
+    render(<EnvelopeRow {...props} />);
     expect(screen.getByText('😂')).toBeInTheDocument();
-    expect(screen.getByText(/老王/)).toBeInTheDocument();
+    expect(screen.getByText('搞笑')).toBeInTheDocument();
+    expect(screen.getByText(/老王,昨晚那事,哈哈/)).toBeInTheDocument();
   });
 
-  it('does not show full body when collapsed', () => {
-    render(<Envelope {...props} />);
-    expect(screen.queryByText('老王,昨晚那事,哈哈,我觉得吧')).not.toBeInTheDocument();
+  it('truncates long body with ellipsis', () => {
+    const longBody = 'x'.repeat(50);
+    render(<EnvelopeRow {...props} body={longBody} />);
+    expect(screen.getByText(/x+\.\.\./)).toBeInTheDocument();
+  });
+
+  it('does not show ellipsis for short body', () => {
+    const shortBody = 'x'.repeat(20);
+    render(<EnvelopeRow {...props} body={shortBody} />);
+    expect(screen.queryByText(/\.\.\./)).not.toBeInTheDocument();
+  });
+
+  it('shows full body when isOpen=true (no truncation)', () => {
+    const longBody = 'y'.repeat(50);
+    render(<EnvelopeRow {...props} body={longBody} isOpen={true} />);
+    expect(screen.getByText(longBody)).toBeInTheDocument();
   });
 
   it('calls onClick when clicked', () => {
-    render(<Envelope {...props} />);
+    render(<EnvelopeRow {...props} />);
     fireEvent.click(screen.getByRole('button'));
     expect(props.onClick).toHaveBeenCalledOnce();
   });

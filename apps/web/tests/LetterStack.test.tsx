@@ -12,17 +12,23 @@ const letters: StyleMap = {
 };
 
 describe('<LetterStack />', () => {
-  it('renders all 5 envelopes', () => {
-    render(<LetterStack letters={letters} onOpen={vi.fn()} />);
+  it('renders all 5 envelopes as a vertical list', () => {
+    render(<LetterStack letters={letters} onOpen={vi.fn()} opened={null} />);
     for (const s of STYLES) {
       expect(screen.getByLabelText(new RegExp(s))).toBeInTheDocument();
     }
   });
 
-  it('calls onOpen with style when an envelope is clicked', () => {
+  it('calls onOpen with style when an envelope row is clicked', () => {
     const onOpen = vi.fn();
-    render(<LetterStack letters={letters} onOpen={onOpen} />);
+    render(<LetterStack letters={letters} onOpen={onOpen} opened={null} />);
     fireEvent.click(screen.getByLabelText(/真诚/));
     expect(onOpen).toHaveBeenCalledWith('sincere');
+  });
+
+  it('marks the opened envelope with seal border via aria-pressed', () => {
+    render(<LetterStack letters={letters} onOpen={vi.fn()} opened="sincere" />);
+    const sincereButton = screen.getByLabelText(/真诚/);
+    expect(sincereButton).toHaveAttribute('aria-pressed', 'true');
   });
 });
