@@ -12,7 +12,8 @@ describe('WorkersAIClient', () => {
       maxTokens: 400,
       temperature: 0.9,
     });
-    expect(out).toBe('你好,道歉。');
+    expect(out.text).toBe('你好,道歉。');
+    expect(typeof out.neurons).toBe('number');
     expect(run).toHaveBeenCalledWith(
       '@cf/meta/llama-3.1-8b-instruct',
       expect.objectContaining({ max_tokens: 400, temperature: 0.9 })

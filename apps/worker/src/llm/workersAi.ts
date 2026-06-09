@@ -1,4 +1,5 @@
-import type { LLMClient, GenerateArgs } from './client.js';
+import type { LLMClient, GenerateArgs, LLMResult } from './client.js';
+import { estimateNeuronsFromUsage } from './neurons.js';
 
 const MODEL = '@cf/meta/llama-3.1-8b-instruct';
 
@@ -6,7 +7,7 @@ export class WorkersAIClient implements LLMClient {
   readonly id = 'workers-ai' as const;
   constructor(private readonly ai: Ai) {}
 
-  async generate(args: GenerateArgs): Promise<string> {
+  async generate(args: GenerateArgs): Promise<LLMResult> {
     // Cast MODEL through `as any` for `ai.run`: the 4.20240620 workers-types
     // package mis-categorises @cf/meta/llama-3.1-8b-instruct under
     // BaseAiImageToTextModels. The runtime call is correct; only the type
@@ -22,7 +23,9 @@ export class WorkersAIClient implements LLMClient {
         temperature: args.temperature ?? 0.9,
       },
     );
-    const r = res as { response?: string };
-    return (r.response ?? '').trim();
+    const r = res as { response?: string; usage?: { prompt_tokens?: number; completion_tokens?: number } };
+    const text = (r.response ?? '').trim();
+    const neurons = estimateNeuronsFromUsage('workers-ai', r.usage);
+    return { text, neurons };
   }
 }

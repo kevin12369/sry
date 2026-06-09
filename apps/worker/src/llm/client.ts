@@ -8,7 +8,12 @@ export interface GenerateArgs {
   signal?: AbortSignal;
 }
 
+export interface LLMResult {
+  text: string;
+  neurons: number;
+}
+
 export interface LLMClient {
   readonly id: ModelId;
-  generate(args: GenerateArgs): Promise<string>;
+  generate(args: GenerateArgs): Promise<LLMResult>;
 }

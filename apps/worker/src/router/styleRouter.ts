@@ -1,4 +1,4 @@
-import type { LLMClient, GenerateArgs } from '../llm/client.js';
+import type { LLMClient, GenerateArgs, LLMResult } from '../llm/client.js';
 import { STYLES, type Style, type StyleMap, type Personality } from '@sry/shared';
 import { getStylePrompt, renderUserPrompt } from '../prompts/index.js';
 
@@ -7,6 +7,11 @@ export interface RouteArgs {
   personality: Personality;
   llm: LLMClient;
   timeoutMs?: number;
+}
+
+export interface RouteResult {
+  letters: StyleMap;
+  neurons: number;
 }
 
 const PER_STYLE_TIMEOUT_MS = 8000;
@@ -23,8 +28,9 @@ async function withTimeout<T>(p: Promise<T>, ms: number): Promise<T> {
   }
 }
 
-export async function routeOnce({ situation, personality, llm, timeoutMs = PER_STYLE_TIMEOUT_MS }: RouteArgs): Promise<StyleMap> {
-  const tasks = STYLES.map(async (style: Style): Promise<[Style, string]> => {
+export async function routeOnce({ situation, personality, llm, timeoutMs = PER_STYLE_TIMEOUT_MS }: RouteArgs): Promise<RouteResult> {
+  let totalNeurons = 0;
+  const tasks = STYLES.map(async (style: Style): Promise<[Style, string, number]> => {
     const sp = getStylePrompt(style);
     const args: GenerateArgs = {
       system: sp.system,
@@ -33,14 +39,14 @@ export async function routeOnce({ situation, personality, llm, timeoutMs = PER_S
       temperature: 0.9,
     };
     try {
-      const out = await withTimeout(llm.generate(args), timeoutMs);
-      return [style, out];
+      const out: LLMResult = await withTimeout(llm.generate(args), timeoutMs);
+      return [style, out.text, out.neurons];
     } catch {
       // Per spec section 4.3: failure surfaces as "该风格卡片显示'生成失败,点这里换一种说法'按钮"
       // → return empty string so LetterCard's empty-body state renders the retry button.
       // The kill-switch FALLBACK_LETTERS are only used at the Worker /api/gen entry (Task 26),
       // not per-style here.
-      return [style, ''];
+      return [style, '', 0];
     }
   });
 
@@ -49,10 +55,11 @@ export async function routeOnce({ situation, personality, llm, timeoutMs = PER_S
   for (const r of settled) {
     if (r.status === 'fulfilled') {
       out[r.value[0]] = r.value[1];
+      totalNeurons += r.value[2];
     }
   }
   for (const s of STYLES) {
     if (!(s in out)) out[s] = '';
   }
-  return out;
+  return { letters: out, neurons: totalNeurons };
 }

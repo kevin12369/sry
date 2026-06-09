@@ -13,7 +13,8 @@ describe('ClaudeHaikuClient', () => {
     vi.stubGlobal('fetch', fetchMock);
     const c = new ClaudeHaikuClient('sk-test');
     const out = await c.generate({ system: 's', user: 'u' });
-    expect(out).toBe('亲爱的朋友,');
+    expect(out.text).toBe('亲爱的朋友,');
+    expect(typeof out.neurons).toBe('number');
     const [url, init] = fetchMock.mock.calls[0]!;
     expect(url).toBe('https://api.anthropic.com/v1/messages');
     expect((init as RequestInit).method).toBe('POST');

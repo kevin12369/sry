@@ -13,7 +13,8 @@ describe('GeminiFlashClient', () => {
     vi.stubGlobal('fetch', fetchMock);
     const c = new GeminiFlashClient('gkey');
     const out = await c.generate({ system: 'sys', user: 'u' });
-    expect(out).toBe('真诚的道歉。');
+    expect(out.text).toBe('真诚的道歉。');
+    expect(typeof out.neurons).toBe('number');
     const [url, init] = fetchMock.mock.calls[0]!;
     expect(url as string).toContain('generativelanguage.googleapis.com');
     expect(url as string).toContain('gemini-2.0-flash');

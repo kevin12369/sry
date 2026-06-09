@@ -2,7 +2,7 @@ import { ethicsCheck, REJECT_MESSAGES } from './ethics/guard.js';
 import { checkAndIncrement } from './ethics/rateLimit.js';
 import { hashIp } from './util/ipHash.js';
 import { pickClient } from './llm/router.js';
-import { preCheck, recordUsage } from './router/quota.js';
+import { preCheck, recordUsage, wouldExceedProjectCap } from './router/quota.js';
 import { routeOnce } from './router/styleRouter.js';
 import { sanitize } from './sanitizer/responseSanitizer.js';
 import { FALLBACK_LETTERS } from './killSwitch/templates.js';
@@ -102,6 +102,21 @@ export default {
         return withCors(jsonError('quota-exceeded', qc.message, 429));
       }
 
+      // === Project-level free-tier cap ===
+      const dailyCap = Number(env.PROJECT_DAILY_NEURONS_CAP ?? 8000);
+      const monthlyCap = Number(env.PROJECT_MONTHLY_NEURONS_CAP ?? 240000);
+      const dailyUsed = Number(await env.RL.get(kvUsageKey('daily', todayUtc(new Date()))) ?? 0);
+      const monthlyUsed = Number(await env.RL.get(kvUsageKey('monthly', monthUtc(new Date()))) ?? 0);
+      const estimatedNeurons = 2000;
+      if (wouldExceedProjectCap(dailyCap, dailyUsed, estimatedNeurons) ||
+          wouldExceedProjectCap(monthlyCap, monthlyUsed, estimatedNeurons)) {
+        return withCors(jsonError('quota-exceeded',
+          dailyUsed + estimatedNeurons >= dailyCap
+            ? '今日项目免费额度已用完,明天 UTC 0 点重置。'
+            : '本月项目免费额度已用完,下月 UTC 1 号重置。',
+          429));
+      }
+
       // 4. kill switch
       if (env.LLM_KILL_SWITCH === 'true') {
         return withCors(jsonOk({
@@ -119,12 +134,14 @@ export default {
       }
 
       const t0 = Date.now();
-      const raw = await routeOnce({
+      const routeResult = await routeOnce({
         situation,
         personality,
         llm: client,
       });
       const latency = Date.now() - t0;
+      const raw = routeResult.letters;
+      const neurons = routeResult.neurons;
 
       // 6. sanitize
       const letters = {} as Record<string, string>;
@@ -135,6 +152,16 @@ export default {
 
       // 7. record usage
       await recordUsage(ipHash, model === 'claude-haiku' ? 'byok' : (model === 'gemini-flash' ? 'gemini' : 'workers_ai'), env.RL);
+
+      // accumulate project neurons
+      if (neurons > 0) {
+        const dayKey = kvUsageKey('daily', todayUtc(new Date()));
+        const monthKey = kvUsageKey('monthly', monthUtc(new Date()));
+        const prevDaily = Number(await env.RL.get(dayKey) ?? 0);
+        const prevMonthly = Number(await env.RL.get(monthKey) ?? 0);
+        await env.RL.put(dayKey, String(prevDaily + neurons), { expirationTtl: 86400 + 3600 });
+        await env.RL.put(monthKey, String(prevMonthly + neurons), { expirationTtl: 32 * 86400 });
+      }
 
       return withCors(jsonOk({ letters, meta: { model, latency_ms: latency } }));
     }

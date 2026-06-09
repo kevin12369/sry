@@ -74,3 +74,10 @@ export async function recordUsage(
   month.requests += 1;
   await kv.put(monthKey(ipHash), JSON.stringify(month), { expirationTtl: TTL.monthly });
 }
+
+// Returns true if accepting this request would put us at/over the project cap.
+// Cap of 0 means "unlimited" (defensive default).
+export function wouldExceedProjectCap(cap: number, currentUsed: number, estimated: number): boolean {
+  if (cap <= 0) return false;
+  return currentUsed + estimated >= cap;
+}

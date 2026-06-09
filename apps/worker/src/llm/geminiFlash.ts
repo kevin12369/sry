@@ -1,4 +1,5 @@
-import type { LLMClient, GenerateArgs } from './client.js';
+import type { LLMClient, GenerateArgs, LLMResult } from './client.js';
+import { estimateNeuronsFromUsage } from './neurons.js';
 
 const MODEL = 'gemini-2.0-flash';
 const ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`;
@@ -7,7 +8,7 @@ export class GeminiFlashClient implements LLMClient {
   readonly id = 'gemini-flash' as const;
   constructor(private readonly apiKey: string) {}
 
-  async generate(args: GenerateArgs): Promise<string> {
+  async generate(args: GenerateArgs): Promise<LLMResult> {
     const body = {
       systemInstruction: { parts: [{ text: args.system }] },
       contents: [{ role: 'user', parts: [{ text: args.user }] }],
@@ -25,10 +26,15 @@ export class GeminiFlashClient implements LLMClient {
     if (!res.ok) {
       throw new Error(`gemini-http-${res.status}: ${await res.text()}`);
     }
-    const json = (await res.json()) as {
-      candidates: Array<{ content: { parts: Array<{ text?: string }> } }>;
+    const data = (await res.json()) as {
+      candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
+      usageMetadata?: { promptTokenCount?: number; candidatesTokenCount?: number };
     };
-    const first = json.candidates?.[0]?.content?.parts?.[0]?.text;
-    return (first ?? '').trim();
+    const text = (data.candidates?.[0]?.content?.parts?.[0]?.text ?? '').trim();
+    const usage = data.usageMetadata ? {
+      prompt_tokens: data.usageMetadata.promptTokenCount,
+      completion_tokens: data.usageMetadata.candidatesTokenCount,
+    } : undefined;
+    return { text, neurons: estimateNeuronsFromUsage('gemini-flash', usage) };
   }
 }
