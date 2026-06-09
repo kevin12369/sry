@@ -8,7 +8,6 @@ import { LetterPage } from '@/components/LetterPage';
 import { MailShareCard } from '@/components/MailShareCard';
 import { RejectScreen } from '@/components/RejectScreen';
 import { AllFailedScreen } from '@/components/AllFailedScreen';
-import { SettingsDrawer } from '@/components/SettingsDrawer';
 import { useGenerate } from '@/hooks/useGenerate';
 import { useShareHash } from '@/hooks/useShare';
 import { useSettings } from '@/hooks/useSettings';
@@ -21,7 +20,6 @@ const REJECT_REASONS: RejectReason[] = [
 
 export default function Page() {
   const [settings, setSettings] = useSettings();
-  const [settingsOpen, setSettingsOpen] = useState(false);
   const [letters, setLetters] = useState<StyleMap | null>(null);
   const [opened, setOpened] = useState<Style | null>(null);
   const [situation, setSituation] = useState<string>('');
@@ -57,7 +55,7 @@ export default function Page() {
   if (sharedPayload) {
     return (
       <main className="min-h-screen py-6 px-4">
-        <HandwrittenLogo onClickSettings={() => setSettingsOpen(true)} />
+        <HandwrittenLogo />
         <div className="mt-6">
           <MailShareCard
             letters={sharedPayload.letters}
@@ -66,12 +64,6 @@ export default function Page() {
             onWriteOwn={() => { window.location.hash = ''; window.location.reload(); }}
           />
         </div>
-        <SettingsDrawer
-          open={settingsOpen}
-          onClose={() => setSettingsOpen(false)}
-          settings={settings}
-          onChange={setSettings}
-        />
       </main>
     );
   }
@@ -80,19 +72,13 @@ export default function Page() {
   if (error && REJECT_REASONS.includes(error.code as RejectReason)) {
     return (
       <main className="min-h-screen py-6 px-4 max-w-2xl mx-auto">
-        <HandwrittenLogo onClickSettings={() => setSettingsOpen(true)} />
+        <HandwrittenLogo />
         <div className="mt-6">
           <RejectScreen
             reason={error.code as RejectReason}
             onReset={() => window.location.reload()}
           />
         </div>
-        <SettingsDrawer
-          open={settingsOpen}
-          onClose={() => setSettingsOpen(false)}
-          settings={settings}
-          onChange={setSettings}
-        />
       </main>
     );
   }
@@ -101,16 +87,10 @@ export default function Page() {
   if (letters && STYLES.every((s) => !letters[s])) {
     return (
       <main className="min-h-screen py-6 px-4">
-        <HandwrittenLogo onClickSettings={() => setSettingsOpen(true)} />
+        <HandwrittenLogo />
         <div className="mt-6">
           <AllFailedScreen onRetry={handleRetry} />
         </div>
-        <SettingsDrawer
-          open={settingsOpen}
-          onClose={() => setSettingsOpen(false)}
-          settings={settings}
-          onChange={setSettings}
-        />
       </main>
     );
   }
@@ -119,7 +99,7 @@ export default function Page() {
   if (opened && letters) {
     return (
       <main className="min-h-screen py-6 px-4">
-        <HandwrittenLogo onClickSettings={() => setSettingsOpen(true)} />
+        <HandwrittenLogo />
         <div className="mt-6">
           <LetterPage
             style={opened}
@@ -133,12 +113,6 @@ export default function Page() {
             totalCount={styles.length}
           />
         </div>
-        <SettingsDrawer
-          open={settingsOpen}
-          onClose={() => setSettingsOpen(false)}
-          settings={settings}
-          onChange={setSettings}
-        />
       </main>
     );
   }
@@ -160,16 +134,10 @@ export default function Page() {
   if (letters) {
     return (
       <main className="min-h-screen py-6 px-4 max-w-2xl mx-auto">
-        <HandwrittenLogo onClickSettings={() => setSettingsOpen(true)} />
+        <HandwrittenLogo />
         <div className="mt-6">
           <LetterStack letters={letters} onOpen={setOpened} opened={opened} />
         </div>
-        <SettingsDrawer
-          open={settingsOpen}
-          onClose={() => setSettingsOpen(false)}
-          settings={settings}
-          onChange={setSettings}
-        />
       </main>
     );
   }
@@ -177,7 +145,7 @@ export default function Page() {
   // 6. Default: 4-step chat
   return (
     <main className="min-h-screen py-6 px-4 max-w-2xl mx-auto">
-      <HandwrittenLogo onClickSettings={() => setSettingsOpen(true)} />
+      <HandwrittenLogo />
       <div className="mt-6">
         <ChatForm onSubmit={handleSubmit} defaultTone={settings.defaultTone} />
       </div>
@@ -188,12 +156,6 @@ export default function Page() {
         </a>
         {' '}反馈。
       </footer>
-      <SettingsDrawer
-        open={settingsOpen}
-        onClose={() => setSettingsOpen(false)}
-        settings={settings}
-        onChange={setSettings}
-      />
     </main>
   );
 }
