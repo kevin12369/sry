@@ -4,6 +4,7 @@ import { hashIp } from './util/ipHash.js';
 import { pickClient } from './llm/router.js';
 import { preCheck, recordUsage, wouldExceedProjectCap } from './router/quota.js';
 import { routeOnce } from './router/styleRouter.js';
+import { withMutex } from './router/usageMutex.js';
 import { sanitize } from './sanitizer/responseSanitizer.js';
 import { FALLBACK_LETTERS } from './killSwitch/templates.js';
 import { preflight, withCors } from './util/cors.js';
@@ -102,19 +103,29 @@ export default {
         return withCors(jsonError('quota-exceeded', qc.message, 429));
       }
 
-      // === Project-level free-tier cap ===
+      // === Project-level free-tier cap (pre-check + reserve) ===
       const dailyCap = Number(env.PROJECT_DAILY_NEURONS_CAP ?? 8000);
       const monthlyCap = Number(env.PROJECT_MONTHLY_NEURONS_CAP ?? 240000);
-      const dailyUsed = Number(await env.RL.get(kvUsageKey('daily', todayUtc(new Date()))) ?? 0);
-      const monthlyUsed = Number(await env.RL.get(kvUsageKey('monthly', monthUtc(new Date()))) ?? 0);
-      const estimatedNeurons = 2000;
-      if (wouldExceedProjectCap(dailyCap, dailyUsed, estimatedNeurons) ||
-          wouldExceedProjectCap(monthlyCap, monthlyUsed, estimatedNeurons)) {
+      const estimatedNeurons = 2000;  // Conservative pre-check estimate
+      const dayKey = kvUsageKey('daily', todayUtc(new Date()));
+      const monthKey = kvUsageKey('monthly', monthUtc(new Date()));
+
+      let reserveFailed = false;
+      await withMutex(`reserve:${dayKey}:${monthKey}`, async () => {
+        const dailyUsed = Number(await env.RL.get(dayKey) ?? 0);
+        const monthlyUsed = Number(await env.RL.get(monthKey) ?? 0);
+        if (wouldExceedProjectCap(dailyCap, dailyUsed, estimatedNeurons) ||
+            wouldExceedProjectCap(monthlyCap, monthlyUsed, estimatedNeurons)) {
+          reserveFailed = true;
+          return;
+        }
+        // Pre-reserve: bump counters by the estimate so concurrent requests see it
+        await env.RL.put(dayKey, String(dailyUsed + estimatedNeurons), { expirationTtl: 86400 + 3600 });
+        await env.RL.put(monthKey, String(monthlyUsed + estimatedNeurons), { expirationTtl: 32 * 86400 });
+      });
+      if (reserveFailed) {
         return withCors(jsonError('quota-exceeded',
-          dailyUsed + estimatedNeurons >= dailyCap
-            ? '今日项目免费额度已用完,明天 UTC 0 点重置。'
-            : '本月项目免费额度已用完,下月 UTC 1 号重置。',
-          429));
+          '项目免费额度已用完,明天 UTC 0 点重置。', 429));
       }
 
       // 4. kill switch
@@ -153,14 +164,17 @@ export default {
       // 7. record usage
       await recordUsage(ipHash, model === 'claude-haiku' ? 'byok' : (model === 'gemini-flash' ? 'gemini' : 'workers_ai'), env.RL);
 
-      // accumulate project neurons
+      // === Adjust reservation: actual neurons vs estimated ===
       if (neurons > 0) {
-        const dayKey = kvUsageKey('daily', todayUtc(new Date()));
-        const monthKey = kvUsageKey('monthly', monthUtc(new Date()));
-        const prevDaily = Number(await env.RL.get(dayKey) ?? 0);
-        const prevMonthly = Number(await env.RL.get(monthKey) ?? 0);
-        await env.RL.put(dayKey, String(prevDaily + neurons), { expirationTtl: 86400 + 3600 });
-        await env.RL.put(monthKey, String(prevMonthly + neurons), { expirationTtl: 32 * 86400 });
+        await withMutex(`reserve:${dayKey}:${monthKey}`, async () => {
+          const prevDaily = Number(await env.RL.get(dayKey) ?? 0);
+          const prevMonthly = Number(await env.RL.get(monthKey) ?? 0);
+          // Refund the estimate, add actual (could be more or less)
+          const adjDaily = prevDaily - estimatedNeurons + neurons;
+          const adjMonthly = prevMonthly - estimatedNeurons + neurons;
+          await env.RL.put(dayKey, String(adjDaily), { expirationTtl: 86400 + 3600 });
+          await env.RL.put(monthKey, String(adjMonthly), { expirationTtl: 32 * 86400 });
+        });
       }
 
       return withCors(jsonOk({ letters, meta: { model, latency_ms: latency } }));
