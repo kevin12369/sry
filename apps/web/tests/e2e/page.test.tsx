@@ -46,4 +46,40 @@ describe('e2e: form → stack → letter page', () => {
       expect(screen.getByLabelText(/真诚.*sincere/)).toBeInTheDocument();
     });
   });
+
+  it('navigates prev/next in letter page', async () => {
+    render(<Page />);
+    // Walk the 4-step form
+    fireEvent.change(screen.getByLabelText('情境'), { target: { value: '我把猫放跑了, 他很生气' } });
+    fireEvent.click(screen.getByText(/下一步/));
+    fireEvent.click(screen.getByLabelText('朋友'));
+    fireEvent.click(screen.getByText(/下一步/));
+    fireEvent.click(screen.getByLabelText('真诚道歉'));
+    fireEvent.click(screen.getByText(/下一步/));
+    fireEvent.click(screen.getByLabelText('真诚'));
+    fireEvent.click(screen.getByText(/寄出/));
+
+    // LetterStack should render — click the 搞笑 row to open LetterPage
+    await waitFor(() => {
+      expect(screen.getByLabelText(/搞笑.*funny/)).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByLabelText(/搞笑/));
+
+    // LetterPage should show 上一封/下一封 nav + 1 / 5 progress
+    await waitFor(() => {
+      expect(screen.getByText('1 / 5')).toBeInTheDocument();
+    });
+
+    // Click 下一封
+    fireEvent.click(screen.getByText(/下一封/));
+    await waitFor(() => {
+      expect(screen.getByText('2 / 5')).toBeInTheDocument();
+    });
+
+    // Click 上一封
+    fireEvent.click(screen.getByText(/上一封/));
+    await waitFor(() => {
+      expect(screen.getByText('1 / 5')).toBeInTheDocument();
+    });
+  });
 });
