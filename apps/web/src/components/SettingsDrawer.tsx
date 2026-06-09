@@ -11,7 +11,7 @@ const MODEL_LABELS: Record<ModelId, string> = {
   'deepseek': 'DeepSeek (需 key)',
 };
 
-const STORAGE_KEY = 'sry:settings:v1';
+const STORAGE_KEY = 'sry:settings:v2';
 
 export function SettingsDrawer({
   open, onClose, settings, onChange,
@@ -31,8 +31,8 @@ export function SettingsDrawer({
     saveJSON(STORAGE_KEY, { ...settings, model: value });
   }
   function handleDailyCapBlur(value: number) {
-    onChange({ dailyCap: value });
-    saveJSON(STORAGE_KEY, { ...settings, dailyCap: value });
+    onChange({ userDailyCapUsd: value });
+    saveJSON(STORAGE_KEY, { ...settings, userDailyCapUsd: value });
   }
   return (
     <Drawer open={open} onClose={onClose}>
@@ -64,7 +64,7 @@ export function SettingsDrawer({
       <label className="mt-4 block text-sm font-medium text-slate-700">每日消费上限($)</label>
       <input
         type="number" min={0} step={0.5}
-        defaultValue={settings.dailyCap}
+        defaultValue={settings.userDailyCapUsd}
         onBlur={(e) => handleDailyCapBlur(Number(e.target.value))}
         className="mt-1 w-full rounded border border-slate-300 bg-cream border-[#c9a98d] focus:border-seal p-2 text-sm"
       />
