@@ -17,7 +17,7 @@ export function MailShareCard({
   onWriteOwn: () => void;
 }) {
   return (
-    <div className="max-w-2xl mx-auto space-y-4">
+    <div className="max-w-4xl mx-auto space-y-4">
       <Paper padding="md" className="flex items-center justify-between">
         <h1 className="text-lg font-semibold">嘴笨助手 · 分享视图</h1>
         <button

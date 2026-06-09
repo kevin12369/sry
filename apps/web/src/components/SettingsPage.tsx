@@ -56,7 +56,7 @@ export function SettingsPage({
   }
 
   return (
-    <div className="max-w-3xl mx-auto py-8 px-4">
+    <div className="max-w-5xl mx-auto py-10 px-4">
       {/* Top nav bar */}
       <div className="flex items-center justify-between bg-cream border border-[#c9a98d] rounded-md px-4 py-2.5 mb-3.5">
         <div className="flex items-center gap-2">

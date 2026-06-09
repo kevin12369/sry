@@ -12,7 +12,7 @@ export function LetterStack({
   opened: Style | null;
 }) {
   return (
-    <ul className="space-y-2 max-w-2xl mx-auto" role="list">
+    <ul className="space-y-2 max-w-4xl mx-auto" role="list">
       {(Object.keys(letters) as Style[]).map((style) => (
         <li key={style}>
           <EnvelopeRow

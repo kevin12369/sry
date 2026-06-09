@@ -54,7 +54,7 @@ export default function Page() {
   // 1. Share view
   if (sharedPayload) {
     return (
-      <main className="min-h-screen py-6 px-4">
+      <main className="min-h-screen py-8 px-4">
         <HandwrittenLogo />
         <div className="mt-6">
           <MailShareCard
@@ -71,7 +71,7 @@ export default function Page() {
   // 2. Reject view
   if (error && REJECT_REASONS.includes(error.code as RejectReason)) {
     return (
-      <main className="min-h-screen py-6 px-4 max-w-2xl mx-auto">
+      <main className="min-h-screen py-8 px-4 max-w-4xl mx-auto">
         <HandwrittenLogo />
         <div className="mt-6">
           <RejectScreen
@@ -86,7 +86,7 @@ export default function Page() {
   // 3. All-failed view
   if (letters && STYLES.every((s) => !letters[s])) {
     return (
-      <main className="min-h-screen py-6 px-4">
+      <main className="min-h-screen py-8 px-4">
         <HandwrittenLogo />
         <div className="mt-6">
           <AllFailedScreen onRetry={handleRetry} />
@@ -98,7 +98,7 @@ export default function Page() {
   // 4. LetterPage view (one letter opened)
   if (opened && letters) {
     return (
-      <main className="min-h-screen py-6 px-4">
+      <main className="min-h-screen py-8 px-4">
         <HandwrittenLogo />
         <div className="mt-6">
           <LetterPage
@@ -120,7 +120,7 @@ export default function Page() {
   // 5a. Loading view (waiting for the API response)
   if (loading) {
     return (
-      <main className="min-h-screen py-6 px-4 max-w-2xl mx-auto">
+      <main className="min-h-screen py-8 px-4 max-w-4xl mx-auto">
         <HandwrittenLogo />
         <Paper padding="lg" className="mt-6 text-center">
           <div className="text-seal text-2xl mb-3">写信中…</div>
@@ -133,7 +133,7 @@ export default function Page() {
   // 5b. LetterStack view (letters ready, none opened yet)
   if (letters) {
     return (
-      <main className="min-h-screen py-6 px-4 max-w-2xl mx-auto">
+      <main className="min-h-screen py-8 px-4 max-w-4xl mx-auto">
         <HandwrittenLogo />
         <div className="mt-6">
           <LetterStack letters={letters} onOpen={setOpened} opened={opened} />
@@ -144,7 +144,7 @@ export default function Page() {
 
   // 6. Default: 4-step chat
   return (
-    <main className="min-h-screen py-6 px-4 max-w-2xl mx-auto">
+    <main className="min-h-screen py-8 px-4 max-w-4xl mx-auto">
       <HandwrittenLogo />
       <div className="mt-6">
         <ChatForm onSubmit={handleSubmit} defaultTone={settings.defaultTone} />

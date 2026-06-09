@@ -32,7 +32,7 @@ export function LetterPage({
     'silent-treatment': allLetters['silent-treatment'] ?? '',
   };
   return (
-    <Paper className="max-w-2xl mx-auto relative overflow-hidden !p-0">
+    <Paper className="max-w-4xl mx-auto relative overflow-hidden !p-0">
       {/* Top decorative bar */}
       <div className="h-1.5 bg-gradient-to-r from-[#c9a98d] via-[#d4b896] to-[#c9a98d]" aria-hidden="true" />
 
