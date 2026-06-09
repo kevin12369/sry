@@ -14,12 +14,12 @@ export type ChatFormValue = {
   personality: Personality;
 };
 
-export function ChatForm({ onSubmit }: { onSubmit: (v: ChatFormValue) => void }) {
+export function ChatForm({ onSubmit, defaultTone = '' }: { onSubmit: (v: ChatFormValue) => void; defaultTone?: Tone | '' }) {
   const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
   const [situation, setSituation] = useState('');
   const [audience, setAudience] = useState<Audience | ''>('');
   const [goal, setGoal] = useState<Goal | ''>('');
-  const [tone, setTone] = useState<Tone | ''>('');
+  const [tone, setTone] = useState<Tone | ''>(defaultTone);
   const [err, setErr] = useState<string | null>(null);
 
   function next() {

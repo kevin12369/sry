@@ -168,7 +168,7 @@ export default function Page() {
     <main className="min-h-screen py-6 px-4 max-w-2xl mx-auto">
       <HandwrittenLogo onClickSettings={() => setSettingsOpen(true)} />
       <div className="mt-6">
-        <ChatForm onSubmit={handleSubmit} />
+        <ChatForm onSubmit={handleSubmit} defaultTone={settings.defaultTone} />
       </div>
       <footer className="mt-12 text-center text-xs text-muted">
         被误伤了?写信给{' '}
