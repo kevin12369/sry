@@ -7,6 +7,11 @@ import { routeOnce } from './router/styleRouter.js';
 import { sanitize } from './sanitizer/responseSanitizer.js';
 import { FALLBACK_LETTERS } from './killSwitch/templates.js';
 import { preflight, withCors } from './util/cors.js';
+import {
+  kvUsageKey, todayUtc, monthUtc,
+  nextDailyResetUtc, nextMonthlyResetUtc,
+  makeUsageBucket, type Usage,
+} from './router/usage.js';
 import { GenerateRequestSchema, type ModelId, STYLES } from '@sry/shared';
 
 const MODELS: ModelId[] = ['workers-ai', 'gemini-flash', 'claude-haiku'];
@@ -39,6 +44,21 @@ export default {
     const path = url.pathname;
 
     if (req.method === 'OPTIONS') return preflight();
+
+    if (req.method === 'GET' && path === '/api/usage') {
+      const now = new Date();
+      const dailyUsedRaw = await env.RL.get(kvUsageKey('daily', todayUtc(now)));
+      const monthlyUsedRaw = await env.RL.get(kvUsageKey('monthly', monthUtc(now)));
+      const dailyUsed = Number(dailyUsedRaw ?? 0);
+      const monthlyUsed = Number(monthlyUsedRaw ?? 0);
+      const dailyCap = Number(env.PROJECT_DAILY_NEURONS_CAP ?? 8000);
+      const monthlyCap = Number(env.PROJECT_MONTHLY_NEURONS_CAP ?? 240000);
+      const usage: Usage = {
+        daily: makeUsageBucket(dailyCap, dailyUsed, nextDailyResetUtc(now)),
+        monthly: makeUsageBucket(monthlyCap, monthlyUsed, nextMonthlyResetUtc(now)),
+      };
+      return withCors(jsonOk(usage));
+    }
 
     if (req.method === 'GET' && path === '/api/health') {
       return withCors(jsonOk({ ok: true, ts: Date.now() }));

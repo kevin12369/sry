@@ -6,7 +6,7 @@ describe('pickClient', () => {
     const c = pickClient({
       model: 'workers-ai',
       headers: new Headers(),
-      env: { AI: {} as Ai, RL: {} as KVNamespace, LLM_KILL_SWITCH: 'false', DEFAULT_MODEL: 'workers-ai' },
+      env: { AI: {} as Ai, RL: {} as KVNamespace, LLM_KILL_SWITCH: 'false', DEFAULT_MODEL: 'workers-ai', PROJECT_DAILY_NEURONS_CAP: '8000', PROJECT_MONTHLY_NEURONS_CAP: '240000' },
     });
     expect(c.id).toBe('workers-ai');
   });
@@ -15,7 +15,7 @@ describe('pickClient', () => {
     const c = pickClient({
       model: 'gemini-flash',
       headers: new Headers(),
-      env: { AI: {} as Ai, RL: {} as KVNamespace, LLM_KILL_SWITCH: 'false', DEFAULT_MODEL: 'workers-ai', GEMINI_API_KEY: 'srvkey' },
+      env: { AI: {} as Ai, RL: {} as KVNamespace, LLM_KILL_SWITCH: 'false', DEFAULT_MODEL: 'workers-ai', GEMINI_API_KEY: 'srvkey', PROJECT_DAILY_NEURONS_CAP: '8000', PROJECT_MONTHLY_NEURONS_CAP: '240000' },
     });
     expect(c.id).toBe('gemini-flash');
   });
@@ -24,7 +24,7 @@ describe('pickClient', () => {
     const c = pickClient({
       model: 'claude-haiku',
       headers: new Headers({ 'x-api-key': 'userkey' }),
-      env: { AI: {} as Ai, RL: {} as KVNamespace, LLM_KILL_SWITCH: 'false', DEFAULT_MODEL: 'workers-ai' },
+      env: { AI: {} as Ai, RL: {} as KVNamespace, LLM_KILL_SWITCH: 'false', DEFAULT_MODEL: 'workers-ai', PROJECT_DAILY_NEURONS_CAP: '8000', PROJECT_MONTHLY_NEURONS_CAP: '240000' },
     });
     expect(c.id).toBe('claude-haiku');
   });
@@ -33,7 +33,7 @@ describe('pickClient', () => {
     expect(() => pickClient({
       model: 'claude-haiku',
       headers: new Headers(),
-      env: { AI: {} as Ai, RL: {} as KVNamespace, LLM_KILL_SWITCH: 'false', DEFAULT_MODEL: 'workers-ai' },
+      env: { AI: {} as Ai, RL: {} as KVNamespace, LLM_KILL_SWITCH: 'false', DEFAULT_MODEL: 'workers-ai', PROJECT_DAILY_NEURONS_CAP: '8000', PROJECT_MONTHLY_NEURONS_CAP: '240000' },
     })).toThrow(/api key/);
   });
 });

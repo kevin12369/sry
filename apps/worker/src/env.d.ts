@@ -6,6 +6,8 @@ declare global {
     GEMINI_API_KEY?: string;
     LLM_KILL_SWITCH: string;
     DEFAULT_MODEL: string;
+    PROJECT_DAILY_NEURONS_CAP: string;
+    PROJECT_MONTHLY_NEURONS_CAP: string;
   }
 }
 export {};
