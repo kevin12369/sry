@@ -12,6 +12,8 @@ const MODEL_LABELS: Record<ModelId, string> = {
   'gemini-flash': 'Gemini 2.0 Flash (免费,推荐)',
   'claude-haiku': 'Claude 3.5 Haiku (需 key,质量最好)',
   'deepseek': 'DeepSeek V3 (几乎免费,中文好)',
+  'ollama': '本地 Ollama (在 LocalProviderCard 配)',
+  'openai-compatible': '本地 OpenAI 兼容 (LM Studio / vLLM)',
 };
 
 const TONE_OPTIONS: Tone[] = ['搞笑', '真诚', '耍赖', '法务', '已读不回'];

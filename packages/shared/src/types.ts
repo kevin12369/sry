@@ -21,11 +21,29 @@ export type RejectReason =
   | 'quota-exceeded'
   | 'kill-switch';
 
-export type ModelId = 'workers-ai' | 'gemini-flash' | 'claude-haiku' | 'deepseek';
+export type ModelId =
+  | 'workers-ai'
+  | 'gemini-flash'
+  | 'claude-haiku'
+  | 'deepseek'
+  | 'ollama'
+  | 'openai-compatible';
+
+export interface LocalFields {
+  localBaseUrl?: string;
+  localModel?: string;
+  localApiKey?: string;
+  localTimeoutMs?: number;
+}
 
 export interface GenerateRequest {
   situation: string;
   personality: Personality;
+  // === Local LLM fields (only used when model is 'ollama' / 'openai-compatible') ===
+  localBaseUrl?: string;
+  localModel?: string;
+  localApiKey?: string;
+  localTimeoutMs?: number;
 }
 
 export interface GenerateResponse {

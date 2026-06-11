@@ -28,5 +28,13 @@ export function pickClient({ model, headers, env }: PickArgs): LLMClient {
       // TODO(usage-settings-plan Task 2+): wire DeepSeek client.
       throw new Error('deepseek client not yet wired');
     }
+    case 'ollama':
+    case 'openai-compatible': {
+      throw new Error('local provider requires local args; pass local to pickClient');
+    }
+    default: {
+      const _exhaustive: never = model;
+      throw new Error(`unknown model: ${String(_exhaustive)}`);
+    }
   }
 }

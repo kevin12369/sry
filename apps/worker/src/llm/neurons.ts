@@ -15,6 +15,8 @@ const COEFFICIENT: Record<ModelId, number> = {
   'gemini-flash': 1,
   'claude-haiku': 1,
   'deepseek': 1,
+  'ollama': 0,
+  'openai-compatible': 0,
 };
 
 export function estimateNeuronsFromUsage(model: ModelId, usage: UsageLike | undefined): number {

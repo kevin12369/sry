@@ -26,4 +26,18 @@ export const RejectReasonSchema = z.enum([
   'too-long', 'too-short', 'real-person', 'harassment', 'rate-limit', 'quota-exceeded', 'kill-switch',
 ]);
 
-export const ModelIdSchema = z.enum(['workers-ai', 'gemini-flash', 'claude-haiku', 'deepseek']);
+export const ModelIdSchema = z.enum([
+  'workers-ai',
+  'gemini-flash',
+  'claude-haiku',
+  'deepseek',
+  'ollama',
+  'openai-compatible',
+]);
+
+export const LocalFieldsSchema = z.object({
+  localBaseUrl: z.string().optional(),
+  localModel: z.string().optional(),
+  localApiKey: z.string().optional(),
+  localTimeoutMs: z.number().int().positive().max(120000).optional(),
+});
