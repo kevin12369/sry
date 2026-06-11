@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { Paper } from '@/components/Paper';
 import { HandwrittenLogo } from '@/components/HandwrittenLogo';
 import { ChatForm, type ChatFormValue } from '@/components/ChatForm';
@@ -11,7 +12,8 @@ import { AllFailedScreen } from '@/components/AllFailedScreen';
 import { useGenerate } from '@/hooks/useGenerate';
 import { useShareHash } from '@/hooks/useShare';
 import { useSettings } from '@/hooks/useSettings';
-import { STYLES, type Style, type StyleMap, type RejectReason } from '@sry/shared';
+import { isLocalProviderActive, loadLocalSettings } from '@/lib/localSettings';
+import { STYLES, type Style, type StyleMap, type RejectReason, type ModelId } from '@sry/shared';
 
 const REJECT_REASONS: RejectReason[] = [
   'real-person', 'harassment', 'too-long', 'too-short',
@@ -24,24 +26,44 @@ export default function Page() {
   const [opened, setOpened] = useState<Style | null>(null);
   const [situation, setSituation] = useState<string>('');
   const [personality, setPersonality] = useState<string>('');
+  const [useLocal, setUseLocal] = useState(false);
+  const [localLabel, setLocalLabel] = useState('');
   const sharedPayload = useShareHash();
   const { loading, error, data, run } = useGenerate();
 
   useEffect(() => { if (data) setLetters(data.letters); }, [data]);
+
+  useEffect(() => {
+    if (isLocalProviderActive()) {
+      setUseLocal(true);
+      const ls = loadLocalSettings();
+      setLocalLabel(`${ls.provider} @ ${ls.baseUrl || '(no URL)'}`);
+    }
+  }, []);
 
   async function handleSubmit(v: ChatFormValue) {
     setSituation(v.situation);
     setPersonality(v.personality);
     setLetters(null);
     setOpened(null);
-    await run({ situation: v.situation, personality: v.personality },
-      { model: settings.model, apiKey: settings.apiKey });
+    const req = { situation: v.situation, personality: v.personality };
+    const model: ModelId = (useLocal
+      ? (loadLocalSettings().provider || 'ollama')
+      : settings.model) as ModelId;
+    const apiOpts: { model: ModelId; apiKey: string } = {
+      model,
+      apiKey: settings.apiKey,
+    };
+    await run(req, apiOpts);
   }
 
   async function handleRetry() {
     if (!situation || !personality) return;
-    await run({ situation, personality: personality as 'sensitive' | 'direct' | 'cold' },
-      { model: settings.model, apiKey: settings.apiKey });
+    const req = { situation, personality: personality as 'sensitive' | 'direct' | 'cold' };
+    const model: ModelId = (useLocal
+      ? (loadLocalSettings().provider || 'ollama')
+      : settings.model) as ModelId;
+    await run(req, { model, apiKey: settings.apiKey });
   }
 
   const styles = letters ? (Object.keys(letters) as Style[]) : [];
@@ -145,7 +167,36 @@ export default function Page() {
   // 6. Default: 4-step chat
   return (
     <main className="min-h-screen py-8 px-4 max-w-4xl mx-auto">
-      <HandwrittenLogo />
+      <div className="flex items-start justify-between gap-3">
+        <HandwrittenLogo />
+        <div className="flex flex-col items-end gap-1.5 mt-2">
+          <button
+            type="button"
+            data-testid="local-toggle"
+            aria-pressed={useLocal}
+            onClick={() => {
+              const next = !useLocal;
+              setUseLocal(next);
+              if (typeof localStorage !== 'undefined') {
+                localStorage.setItem('sry:useLocal', String(next));
+              }
+            }}
+            className={`text-[11px] px-2.5 py-1 rounded border ${
+              useLocal
+                ? 'border-emerald-500 text-emerald-700 bg-emerald-50'
+                : 'border-[#c9a98d] text-muted bg-white'
+            }`}
+          >
+            {useLocal ? `Local: ${localLabel}` : 'Cloud'}
+          </button>
+          <Link
+            href="/settings"
+            className="text-[10px] text-muted hover:text-ink"
+          >
+            设置
+          </Link>
+        </div>
+      </div>
       <div className="mt-6">
         <ChatForm onSubmit={handleSubmit} defaultTone={settings.defaultTone} />
       </div>

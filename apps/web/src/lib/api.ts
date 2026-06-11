@@ -1,4 +1,5 @@
 import { loadJSON } from '@/lib/storage';
+import { isLocalProviderActive, loadLocalSettings } from '@/lib/localSettings';
 import type { Settings } from '@/hooks/useSettings';
 import type { GenerateRequest, GenerateResponse, ModelId } from '@sry/shared';
 
@@ -28,7 +29,44 @@ export async function generateLetters(req: GenerateRequest, opts: ApiOpts = {}):
     ?? (typeof window !== 'undefined' ? window.__SRY_API__ : undefined)
     ?? DEFAULT_API_BASE;
   const headers: Record<string, string> = { 'content-type': 'application/json' };
-  if (opts.model) headers['x-model'] = opts.model;
+
+  // If the request didn't pin a model, fall back to the sry:settings:v2
+  // choice. If the user enabled a local provider, pin to that.
+  let model: ModelId | undefined = opts.model;
+  if (!model) {
+    const stored = loadJSON<Partial<Settings>>('sry:settings:v2', {});
+    model = stored.model as ModelId | undefined;
+  }
+  if (!model && isLocalProviderActive()) {
+    const ls = loadLocalSettings();
+    model = ls.provider as ModelId;
+  }
+
+  if (model === 'ollama' || model === 'openai-compatible') {
+    headers['x-model'] = model;
+    // Inject the 4 local fields from storage when the caller didn't
+    // provide them — keeps the home page form simple.
+    const ls = loadLocalSettings();
+    const body: GenerateRequest & Record<string, unknown> = { ...req };
+    if (body.localBaseUrl === undefined) body.localBaseUrl = ls.baseUrl;
+    if (body.localModel === undefined) body.localModel = ls.model;
+    if (body.localApiKey === undefined && ls.apiKey) body.localApiKey = ls.apiKey;
+    if (body.localTimeoutMs === undefined) body.localTimeoutMs = ls.timeoutMs;
+
+    if (opts.apiKey) headers['x-api-key'] = opts.apiKey;
+    const res = await fetch(`${base.replace(/\/$/, '')}/api/gen`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) {
+      const j = await res.json().catch(() => ({}));
+      throw new ApiError(res.status, j.error ?? 'unknown', j.message ?? `HTTP ${res.status}`);
+    }
+    return (await res.json()) as GenerateResponse;
+  }
+
+  if (model) headers['x-model'] = model;
   if (opts.apiKey) headers['x-api-key'] = opts.apiKey;
   const res = await fetch(`${base.replace(/\/$/, '')}/api/gen`, {
     method: 'POST',
