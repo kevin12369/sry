@@ -3,6 +3,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useUsage } from '@/hooks/useUsage';
 import { UsagePanel } from './UsagePanel';
+import { LocalProviderCard } from './LocalProviderCard';
 import { saveJSON } from '@/lib/storage';
 import type { ModelId } from '@sry/shared';
 import type { Settings, Tone } from '@/hooks/useSettings';
@@ -243,6 +244,11 @@ export function SettingsPage({
             不可撤销
           </div>
         </div>
+      </div>
+
+      {/* Card 5: 本地 LLM (full width row below 2x2 grid) */}
+      <div className="mt-3">
+        <LocalProviderCard />
       </div>
 
       {saved && (
