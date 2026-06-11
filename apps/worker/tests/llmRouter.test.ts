@@ -36,6 +36,34 @@ describe('pickClient', () => {
       env: { AI: {} as Ai, RL: {} as KVNamespace, LLM_KILL_SWITCH: 'false', DEFAULT_MODEL: 'workers-ai', PROJECT_DAILY_NEURONS_CAP: '8000', PROJECT_MONTHLY_NEURONS_CAP: '240000' },
     })).toThrow(/api key/);
   });
+
+  it('returns OllamaClient for ollama when local baseUrl provided', () => {
+    const c = pickClient({
+      model: 'ollama',
+      headers: new Headers(),
+      env: { AI: {} as Ai, RL: {} as KVNamespace, LLM_KILL_SWITCH: 'false', DEFAULT_MODEL: 'workers-ai', PROJECT_DAILY_NEURONS_CAP: '8000', PROJECT_MONTHLY_NEURONS_CAP: '240000' },
+      local: { baseUrl: 'http://localhost:11434', model: 'llama3.1:8b' },
+    });
+    expect(c.id).toBe('ollama');
+  });
+
+  it('returns OpenAiCompatibleClient for openai-compatible with apiKey', () => {
+    const c = pickClient({
+      model: 'openai-compatible',
+      headers: new Headers(),
+      env: { AI: {} as Ai, RL: {} as KVNamespace, LLM_KILL_SWITCH: 'false', DEFAULT_MODEL: 'workers-ai', PROJECT_DAILY_NEURONS_CAP: '8000', PROJECT_MONTHLY_NEURONS_CAP: '240000' },
+      local: { baseUrl: 'http://localhost:1234/v1', model: 'qwen2.5-coder-7b', apiKey: 'lm-studio' },
+    });
+    expect(c.id).toBe('openai-compatible');
+  });
+
+  it('throws when local provider selected but no local.baseUrl', () => {
+    expect(() => pickClient({
+      model: 'ollama',
+      headers: new Headers(),
+      env: { AI: {} as Ai, RL: {} as KVNamespace, LLM_KILL_SWITCH: 'false', DEFAULT_MODEL: 'workers-ai', PROJECT_DAILY_NEURONS_CAP: '8000', PROJECT_MONTHLY_NEURONS_CAP: '240000' },
+    })).toThrow(/baseUrl/);
+  });
 });
 
 // suppress unused
