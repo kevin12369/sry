@@ -12,6 +12,7 @@ export interface Usage {
   gemini: number;
   deepseek: number;
   byok: number;
+  local: number;
   requests: number;
 }
 
@@ -41,7 +42,7 @@ function monthKey(ipHash: string) { return `usage:${ipHash}:${new Date().toISOSt
 function capKey(ipHash: string) { return `cap:${ipHash}`; }
 
 function emptyUsage(): Usage {
-  return { workers_ai: 0, gemini: 0, deepseek: 0, byok: 0, requests: 0 };
+  return { workers_ai: 0, gemini: 0, deepseek: 0, byok: 0, local: 0, requests: 0 };
 }
 
 export async function preCheck(ipHash: string, mode: Mode, kv: KVNamespace): Promise<QuotaResult> {
@@ -61,7 +62,7 @@ export async function preCheck(ipHash: string, mode: Mode, kv: KVNamespace): Pro
 
 export async function recordUsage(
   ipHash: string,
-  provider: 'workers_ai' | 'gemini' | 'deepseek' | 'byok',
+  provider: 'workers_ai' | 'gemini' | 'deepseek' | 'byok' | 'local',
   kv: KVNamespace
 ): Promise<void> {
   const today = (await kv.get(todayKey(ipHash)).then((v) => (v ? (JSON.parse(v) as Usage) : emptyUsage())));

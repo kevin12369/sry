@@ -19,7 +19,7 @@ describe('preCheck', () => {
     const k = 'iphash2';
     // simulate already maxed out
     await kv.put(`usage:${k}:${today()}`, JSON.stringify({
-      workers_ai: 10000, gemini: 1500, deepseek: 0, byok: 0, requests: 100,
+      workers_ai: 10000, gemini: 1500, deepseek: 0, byok: 0, local: 0, requests: 100,
     } satisfies Usage));
     const r = await preCheck(k, 'self', kv as unknown as KVNamespace);
     expect(r.ok).toBe(false);
@@ -30,7 +30,7 @@ describe('preCheck', () => {
     const k = 'iphash3';
     await kv.put(`cap:${k}`, JSON.stringify({ mode: 'byok', daily_cap: 5, monthly_cap: 100, byok_enabled: true }));
     await kv.put(`usage:${k}:${today()}`, JSON.stringify({
-      workers_ai: 0, gemini: 0, deepseek: 0, byok: 5, requests: 5,
+      workers_ai: 0, gemini: 0, deepseek: 0, byok: 5, local: 0, requests: 5,
     } satisfies Usage));
     const r = await preCheck(k, 'byok', kv as unknown as KVNamespace);
     expect(r.ok).toBe(false);

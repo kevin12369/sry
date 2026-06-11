@@ -15,7 +15,7 @@ import {
 } from './router/usage.js';
 import { GenerateRequestSchema, type ModelId, STYLES } from '@sry/shared';
 
-const MODELS: ModelId[] = ['workers-ai', 'gemini-flash', 'claude-haiku'];
+const MODELS: ModelId[] = ['workers-ai', 'gemini-flash', 'claude-haiku', 'ollama', 'openai-compatible'];
 
 function getClientIp(req: Request): string {
   return (
@@ -97,13 +97,20 @@ export default {
       // 3. quota pre-check
       const modelHeader = (req.headers.get('x-model') ?? env.DEFAULT_MODEL) as ModelId;
       const model: ModelId = MODELS.includes(modelHeader) ? modelHeader : 'workers-ai';
+      const isLocal = model === 'ollama' || model === 'openai-compatible';
+      // Local providers do NOT touch the project neuron caps. We still
+      // run preCheck for cloud cases (workers-ai / gemini-flash /
+      // claude-haiku).
       const mode = model === 'claude-haiku' ? 'byok' : 'self';
-      const qc = await preCheck(ipHash, mode, env.RL);
-      if (!qc.ok) {
-        return withCors(jsonError('quota-exceeded', qc.message, 429));
+      if (!isLocal) {
+        const qc = await preCheck(ipHash, mode, env.RL);
+        if (!qc.ok) {
+          return withCors(jsonError('quota-exceeded', qc.message, 429));
+        }
       }
 
       // === Project-level free-tier cap (pre-check + reserve) ===
+      // Local providers skip the cap entirely.
       const dailyCap = Number(env.PROJECT_DAILY_NEURONS_CAP ?? 8000);
       const monthlyCap = Number(env.PROJECT_MONTHLY_NEURONS_CAP ?? 240000);
       const estimatedNeurons = 2000;  // Conservative pre-check estimate
@@ -111,21 +118,23 @@ export default {
       const monthKey = kvUsageKey('monthly', monthUtc(new Date()));
 
       let reserveFailed = false;
-      await withMutex(`reserve:${dayKey}:${monthKey}`, async () => {
-        const dailyUsed = Number(await env.RL.get(dayKey) ?? 0);
-        const monthlyUsed = Number(await env.RL.get(monthKey) ?? 0);
-        if (wouldExceedProjectCap(dailyCap, dailyUsed, estimatedNeurons) ||
-            wouldExceedProjectCap(monthlyCap, monthlyUsed, estimatedNeurons)) {
-          reserveFailed = true;
-          return;
+      if (!isLocal) {
+        await withMutex(`reserve:${dayKey}:${monthKey}`, async () => {
+          const dailyUsed = Number(await env.RL.get(dayKey) ?? 0);
+          const monthlyUsed = Number(await env.RL.get(monthKey) ?? 0);
+          if (wouldExceedProjectCap(dailyCap, dailyUsed, estimatedNeurons) ||
+              wouldExceedProjectCap(monthlyCap, monthlyUsed, estimatedNeurons)) {
+            reserveFailed = true;
+            return;
+          }
+          // Pre-reserve: bump counters by the estimate so concurrent requests see it
+          await env.RL.put(dayKey, String(dailyUsed + estimatedNeurons), { expirationTtl: 86400 + 3600 });
+          await env.RL.put(monthKey, String(monthlyUsed + estimatedNeurons), { expirationTtl: 32 * 86400 });
+        });
+        if (reserveFailed) {
+          return withCors(jsonError('quota-exceeded',
+            '项目免费额度已用完,明天 UTC 0 点重置。', 429));
         }
-        // Pre-reserve: bump counters by the estimate so concurrent requests see it
-        await env.RL.put(dayKey, String(dailyUsed + estimatedNeurons), { expirationTtl: 86400 + 3600 });
-        await env.RL.put(monthKey, String(monthlyUsed + estimatedNeurons), { expirationTtl: 32 * 86400 });
-      });
-      if (reserveFailed) {
-        return withCors(jsonError('quota-exceeded',
-          '项目免费额度已用完,明天 UTC 0 点重置。', 429));
       }
 
       // 4. kill switch
@@ -137,9 +146,27 @@ export default {
       }
 
       // 5. pick LLM + run style router
+      // Local providers receive 4 extra fields from the request body and
+      // are routed to Ollama/OpenAI-compatible clients. The baseUrl is
+      // validated (SSRF guard); failures return 400.
+      const bodyRecord = (body ?? {}) as Record<string, unknown>;
+      const localBaseUrl = typeof bodyRecord.localBaseUrl === 'string' ? bodyRecord.localBaseUrl : '';
+      const localModel = typeof bodyRecord.localModel === 'string' ? bodyRecord.localModel : '';
+      const localApiKey = typeof bodyRecord.localApiKey === 'string' ? bodyRecord.localApiKey : undefined;
+      const localTimeoutMs = typeof bodyRecord.localTimeoutMs === 'number' ? bodyRecord.localTimeoutMs : undefined;
       let client;
-      try { client = pickClient({ model, headers: req.headers, env }); }
-      catch (e) {
+      try {
+        if (isLocal) {
+          client = pickClient({
+            model,
+            headers: req.headers,
+            env,
+            local: { baseUrl: localBaseUrl, model: localModel, apiKey: localApiKey, timeoutMs: localTimeoutMs },
+          });
+        } else {
+          client = pickClient({ model, headers: req.headers, env });
+        }
+      } catch (e) {
         const msg = (e as Error).message;
         return withCors(jsonError('kill-switch', msg, 400));
       }
@@ -162,10 +189,16 @@ export default {
       }
 
       // 7. record usage
-      await recordUsage(ipHash, model === 'claude-haiku' ? 'byok' : (model === 'gemini-flash' ? 'gemini' : 'workers_ai'), env.RL);
+      const usageProvider: 'workers_ai' | 'gemini' | 'deepseek' | 'byok' | 'local' =
+        isLocal ? 'local' :
+        model === 'claude-haiku' ? 'byok' :
+        model === 'gemini-flash' ? 'gemini' :
+        'workers_ai';
+      await recordUsage(ipHash, usageProvider, env.RL);
 
       // === Adjust reservation: actual neurons vs estimated ===
-      if (neurons > 0) {
+      // Skip for local providers (no project reservation was made).
+      if (!isLocal && neurons > 0) {
         await withMutex(`reserve:${dayKey}:${monthKey}`, async () => {
           const prevDaily = Number(await env.RL.get(dayKey) ?? 0);
           const prevMonthly = Number(await env.RL.get(monthKey) ?? 0);
