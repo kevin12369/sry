@@ -2,9 +2,21 @@
 
 > **道歉这件难开口的事,让 AI 帮你起个稿。/ When "sorry" is hard, AI drafts the words.**
 
-[![Status](https://img.shields.io/badge/status-MVP_shipped-brightgreen)](#)
-[![License](https://img.shields.io/badge/license-MIT-blue)](#)
-[![Stack](https://img.shields.io/badge/stack-Cloudflare_Workers-F38020?logo=cloudflare)](#)
+[![CI](https://github.com/kevin12369/sry/actions/workflows/ci.yml/badge.svg)](https://github.com/kevin12369/sry/actions/workflows/ci.yml)
+[![Tests](https://img.shields.io/badge/tests-205_passing-brightgreen)](#)
+[![Deploy](https://img.shields.io/badge/deploy-live-brightgreen)](https://sry-web.pages.dev/)
+
+---
+
+## About this project
+
+**嘴笨助手 Sry** 是一个 5 种风格的道歉信生成器 —— 你在表单里描述"我做了什么"和"对方性格",AI 一次给你 5 封差异化道歉信挑一封能发出去的。
+
+See the **[portfolio page](https://sry-web.pages.dev/portfolio)** for screenshots, what it does, and how to run it locally.
+
+- **Live demo**: [sry-web.pages.dev](https://sry-web.pages.dev/) (opens with default Cloudflare Workers AI — no setup)
+- **Source code**: [github.com/kevin12369/sry](https://github.com/kevin12369/sry)
+- **Run locally**: [docs/RUN-LOCALLY.md](docs/RUN-LOCALLY.md) — 5 steps, ~10 min, no LLM setup needed
 
 ---
 
