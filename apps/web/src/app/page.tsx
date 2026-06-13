@@ -190,6 +190,12 @@ export default function Page() {
             {useLocal ? `Local: ${localLabel}` : 'Cloud'}
           </button>
           <Link
+            href="/portfolio"
+            className="text-[10px] text-muted hover:text-ink"
+          >
+            About
+          </Link>
+          <Link
             href="/settings"
             className="text-[10px] text-muted hover:text-ink"
           >
