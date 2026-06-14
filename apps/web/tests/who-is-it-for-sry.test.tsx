@@ -24,4 +24,17 @@ describe('<WhoIsItFor /> (PR #4)', () => {
       expect(container.querySelector(`[data-persona="${i}"]`)).toBeInTheDocument();
     }
   });
+
+  // PR #1 P0: padding 改 p-5 md:p-6(原 p-8/p-10)
+  it('persona cards use p-5 md:p-6 padding (PR #1 P0)', () => {
+    const { container } = render(<WhoIsItFor />);
+    const articles = container.querySelectorAll('article[data-persona]');
+    expect(articles).toHaveLength(3);
+    for (const a of Array.from(articles)) {
+      expect(a.className).toMatch(/\bp-5\b/);
+      expect(a.className).toMatch(/\bmd:p-6\b/);
+      expect(a.className).not.toMatch(/\bp-8\b/);
+      expect(a.className).not.toMatch(/\bp-10\b/);
+    }
+  });
 });

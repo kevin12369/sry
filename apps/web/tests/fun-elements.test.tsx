@@ -45,4 +45,17 @@ describe('<FunElements /> (PR #4)', () => {
     render(<FunElements />);
     expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent(/好玩/);
   });
+
+  // PR #1 P0: 5 卡 emoji 大小一致(40px w-10 h-10)
+  it('emoji icons use a uniform 40px w-10 h-10 box (PR #1 P0)', () => {
+    const { container } = render(<FunElements />);
+    const articles = container.querySelectorAll('article[data-fun-card]');
+    expect(articles).toHaveLength(5);
+    for (const a of Array.from(articles)) {
+      const emojiBox = a.querySelector('[aria-hidden="true"]');
+      expect(emojiBox).not.toBeNull();
+      expect(emojiBox?.className).toMatch(/\bw-10\b/);
+      expect(emojiBox?.className).toMatch(/\bh-10\b/);
+    }
+  });
 });

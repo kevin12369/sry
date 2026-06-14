@@ -38,7 +38,8 @@ const CARDS: FunCard[] = [
   },
 ];
 
-// PR #4: 5 个好玩元素段 - 5 卡片网格,每个卡 1 段"好玩"元素 + 截图占位 + 描述
+// PR #4 + PR #1 P0: 5 个好玩元素段 - 5 卡片网格
+// PR #1:emoji 锁 40px w-10 h-10,fun_card min-height 240
 export function FunElements() {
   return (
     <section
@@ -60,11 +61,11 @@ export function FunElements() {
           <article
             key={c.title}
             data-fun-card={idx + 1}
-            className="rounded-paper border border-[#d4b896] bg-cream p-5 shadow-paper"
+            className="rounded-paper border border-[#d4b896] bg-cream p-5 shadow-paper flex flex-col min-h-[240px]"
           >
-            <div className="text-3xl mb-2" aria-hidden="true">{c.emoji}</div>
+            <div className="text-4xl w-10 h-10 flex items-center justify-center mb-2" aria-hidden="true">{c.emoji}</div>
             <h3 className="text-base font-bold text-ink">{c.title}</h3>
-            <p className="mt-2 text-xs text-ink/80 leading-relaxed">{c.desc}</p>
+            <p className="mt-2 text-xs text-ink/80 leading-relaxed flex-1">{c.desc}</p>
             <div
               role="img"
               aria-label={c.placeholder}

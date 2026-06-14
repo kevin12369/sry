@@ -26,7 +26,8 @@ const PERSONAS: Persona[] = [
   },
 ];
 
-// PR #4: 3 画像 - 谁能从这个产品得到价值
+// PR #4 + PR #1 P0: 3 画像 - 谁能从这个产品得到价值
+// PR #1:emoji 锁 40px w-10 h-10,padding 改 p-5 md:p-6,persona min-height 200
 export function WhoIsItFor() {
   return (
     <section
@@ -45,14 +46,14 @@ export function WhoIsItFor() {
           <article
             key={p.title}
             data-persona={idx + 1}
-            className="rounded-paper border border-[#d4b896] bg-cream p-5 shadow-paper"
+            className="rounded-paper border border-[#d4b896] bg-cream p-5 md:p-6 shadow-paper flex flex-col min-h-[200px]"
           >
-            <div className="text-3xl mb-2" aria-hidden="true">{p.emoji}</div>
+            <div className="text-4xl w-10 h-10 flex items-center justify-center mb-2" aria-hidden="true">{p.emoji}</div>
             <h3 className="text-base font-bold text-ink">{p.title}</h3>
             <blockquote className="mt-2 text-xs italic text-seal border-l-2 border-seal pl-2">
               &ldquo;{p.quote}&rdquo;
             </blockquote>
-            <p className="mt-3 text-xs text-ink/80 leading-relaxed">
+            <p className="mt-3 text-xs text-ink/80 leading-relaxed flex-1">
               {p.description}
             </p>
           </article>

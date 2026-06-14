@@ -22,8 +22,9 @@ const STYLE_DESCRIPTIONS: Record<StyleId, StyleMeta['desc']> = {
   silent: '什么都不写。适合你真不知道说什么,或者对方就是不值得。',
 };
 
-// PR #4: 5 风格对比段 - 让访客 30 秒理解每个风格干嘛
-// 每张卡:大 emoji + 中文名 + 英文名 + 描述 + AI 损友点评(从 roasts.ts 取)
+// PR #4 + PR #1 P0: 5 风格对比段 - 让访客 30 秒理解每个风格干嘛
+// 每张卡:emoji(锁 40px w-10 h-10) + 中文名 + 英文名 + 描述 + AI 损友点评(从 roasts.ts 取)
+// PR #1:article min-height 280,emoji 让位于标题文字
 export function StyleCompare() {
   return (
     <section
@@ -43,9 +44,9 @@ export function StyleCompare() {
           <article
             key={s}
             data-style={s}
-            className="rounded-paper border border-[#d4b896] bg-cream p-5 shadow-paper flex flex-col"
+            className="rounded-paper border border-[#d4b896] bg-cream p-5 shadow-paper flex flex-col min-h-[280px]"
           >
-            <div className="text-4xl mb-2" aria-hidden="true">
+            <div className="text-4xl w-10 h-10 flex items-center justify-center mb-2" aria-hidden="true">
               {STYLE_EMOJI[s]}
             </div>
             <h3 className="text-base font-bold text-ink">

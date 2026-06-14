@@ -23,4 +23,17 @@ describe('<Hero /> (PR #4)', () => {
     expect(screen.getByText(/不会骂人/)).toBeInTheDocument();
     expect(screen.getByText(/不会道歉/)).toBeInTheDocument();
   });
+
+  // PR #1 P0: 不应再含 5 个风格 emoji 横排(😂🤝🤡📜👻)
+  it('does NOT render the 5-style emoji preview row (PR #1 P0)', () => {
+    const { container } = render(<Hero />);
+    const previewRegion = container.querySelector('[aria-label="5 风格对比预览"]');
+    expect(previewRegion).toBeNull();
+    const allText = container.textContent ?? '';
+    expect(allText).not.toContain('😂');
+    expect(allText).not.toContain('🤝');
+    expect(allText).not.toContain('🤡');
+    expect(allText).not.toContain('📜');
+    expect(allText).not.toContain('👻');
+  });
 });
