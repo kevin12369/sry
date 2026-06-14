@@ -14,7 +14,7 @@ vi.mock('@/hooks/useShare', () => ({
 describe('<Page /> smoke', () => {
   it('renders the scene form first', () => {
     render(<Page />);
-    expect(screen.getByText(/Sry\.lol/)).toBeInTheDocument();
+    // PR #4: Hero 段也含 "Sry.lol" / "嘴替游乐场",SceneForm 3 步问题唯一
     expect(screen.getByText(/今晚要当什么角色/)).toBeInTheDocument();
   });
 

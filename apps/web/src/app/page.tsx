@@ -8,6 +8,15 @@ import { MailShareCard } from '@/components/MailShareCard';
 import { MemeShareCard } from '@/components/MemeShareCard';
 import { PersonaRoulette } from '@/components/PersonaRoulette';
 import { ByokSettings } from '@/components/ByokSettings';
+import { Hero } from '@/components/Hero';
+import { StatusBadges } from '@/components/StatusBadges';
+import { StyleCompare } from '@/components/StyleCompare';
+import { FunElements } from '@/components/FunElements';
+import { HowItWorks } from '@/components/HowItWorks';
+import { WhoIsItFor } from '@/components/WhoIsItFor';
+import { RunLocally } from '@/components/RunLocally';
+import { FAQ } from '@/components/FAQ';
+import { Roadmap } from '@/components/Roadmap';
 import { useGenerate } from '@/hooks/useGenerate';
 import { useShareHash, useMemeHash } from '@/hooks/useShare';
 import { useSettings } from '@/hooks/useSettings';
@@ -148,39 +157,53 @@ export default function Page() {
     );
   }
 
+  // PR #4: idle 状态 = Hero + 9 段宣传页模板(Header + Demo form + Footer)
+  // Hero CTA 跳 #demo,顺序:Hero / StatusBadges / StyleCompare / FunElements / HowItWorks / WhoIsItFor / RunLocally / FAQ / Roadmap
+  // Footer 已在 layout.tsx 全局挂载
   return (
-    <main className="min-h-screen py-8 px-4 max-w-4xl mx-auto">
-      <HandwrittenLogo />
-      <div className="mt-6">
-        <PersonaRoulette onSpin={handleSpin} />
-      </div>
-      <div className="mt-6">
-        <SceneForm onSubmit={handleSubmit} defaultTone={settings.defaultTone} />
-      </div>
-      <div className="mt-6 text-center">
-        <button
-          type="button"
-          onClick={() => setShowSettings((s) => !s)}
-          className="text-xs text-muted hover:text-ink"
-        >
-          {showSettings ? '收起' : '展开'} LLM 设置 (BYOK)
-        </button>
-      </div>
-      {showSettings && (
-        <div className="mt-4">
-          <ByokSettings />
+    <>
+      <Hero />
+      <StatusBadges />
+      <main id="demo" className="py-8 px-4 max-w-4xl mx-auto">
+        <HandwrittenLogo />
+        <div className="mt-6">
+          <PersonaRoulette onSpin={handleSpin} />
         </div>
-      )}
-      <footer className="mt-12 text-center text-xs text-muted">
-        发不发随你。我们不管,也不想知道。给反馈写信到{' '}
-        <a href="mailto:491750329@qq.com" className="text-seal hover:underline wavy-underline">
-          491750329@qq.com
-        </a>
-        。
-      </footer>
-      <p className="mt-2 text-center text-[10px] text-muted">
-        PR #2: 5×6 prompt table + LLM 直连(BYOK){STYLE_NAMES_ZH.funny}/{STYLE_NAMES_ZH.sincere}/{STYLE_NAMES_ZH.deflect}/{STYLE_NAMES_ZH.legal}/{STYLE_NAMES_ZH.silent}
-      </p>
-    </main>
+        <div className="mt-6">
+          <SceneForm onSubmit={handleSubmit} defaultTone={settings.defaultTone} />
+        </div>
+        <div className="mt-6 text-center">
+          <button
+            type="button"
+            onClick={() => setShowSettings((s) => !s)}
+            className="text-xs text-muted hover:text-ink"
+          >
+            {showSettings ? '收起' : '展开'} LLM 设置 (BYOK)
+          </button>
+        </div>
+        {showSettings && (
+          <div className="mt-4">
+            <ByokSettings />
+          </div>
+        )}
+        <footer className="mt-12 text-center text-xs text-muted">
+          发不发随你。我们不管,也不想知道。给反馈写信到{' '}
+          <a href="mailto:491750329@qq.com" className="text-seal hover:underline wavy-underline">
+            491750329@qq.com
+          </a>
+          。
+        </footer>
+        <p className="mt-2 text-center text-[10px] text-muted">
+          PR #2: 5×6 prompt table + LLM 直连(BYOK){STYLE_NAMES_ZH.funny}/{STYLE_NAMES_ZH.sincere}/{STYLE_NAMES_ZH.deflect}/{STYLE_NAMES_ZH.legal}/{STYLE_NAMES_ZH.silent}
+        </p>
+      </main>
+      <StyleCompare />
+      <FunElements />
+      <HowItWorks />
+      <WhoIsItFor />
+      <RunLocally />
+      <FAQ />
+      <Roadmap />
+    </>
   );
 }

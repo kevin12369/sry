@@ -11,9 +11,10 @@ export function HandwrittenLogo({ settingsHref = '/settings' }: { settingsHref?:
             fontWeight="bold" fontStyle="italic">S</text>
         </svg>
         <div>
-          <h1 className="text-2xl font-semibold tracking-wide">
+          {/* PR #4: h1 移到 Hero,这里改成 span 避免 2 个 h1 */}
+          <span className="text-2xl font-semibold tracking-wide">
             Sry.lol
-          </h1>
+          </span>
           <p className="text-[10px] text-muted">嘴替游乐场</p>
         </div>
       </div>
