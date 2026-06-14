@@ -1,46 +1,39 @@
 'use client';
 import { Paper } from './Paper';
-import { tokens } from '@/lib/tokens';
-import type { Style, StyleMap } from '@sry/shared';
-
-const LABELS: Record<Style, string> = {
-  funny: '搞笑', sincere: '真诚', shameless: '耍赖',
-  'legal-cold': '法务冷面', 'silent-treatment': '已读不回',
-};
+import { STYLE_EMOJI, STYLE_NAMES_ZH, SCENE_NAMES_ZH, type SceneId, type StyleId } from '@/data/prompts';
+import type { SharePayload } from '@/lib/share';
 
 export function MailShareCard({
-  letters, situation, personality, onWriteOwn,
+  payload, onWriteOwn,
 }: {
-  letters: StyleMap;
-  situation: string;
-  personality: string;
+  payload: SharePayload;
   onWriteOwn: () => void;
 }) {
+  const { scene, style, letter, roast, situation } = payload;
   return (
     <div className="max-w-4xl mx-auto space-y-4">
       <Paper padding="md" className="flex items-center justify-between">
-        <h1 className="text-lg font-semibold">嘴笨助手 · 分享视图</h1>
+        <h1 className="text-lg font-semibold">Sry.lol · 分享视图</h1>
         <button
           onClick={onWriteOwn}
           className="text-sm text-seal hover:underline"
         >
-          我也写一封 →
+          我也玩一封 →
         </button>
       </Paper>
       <p className="text-xs text-muted text-center">
-        原情境: {situation} · 性格: {personality}
+        场景: {SCENE_NAMES_ZH[scene]}{situation ? ` · ${situation}` : ''}
       </p>
-      <div className="space-y-3">
-        {(Object.keys(letters) as Style[]).map((s) => (
-          <Paper key={s} padding="md">
-            <div className="flex items-center gap-2 mb-2">
-              <span aria-hidden="true">{tokens.styleEmoji[s]}</span>
-              <strong className="text-seal">{LABELS[s]}</strong>
-            </div>
-            <p className="text-sm text-ink whitespace-pre-wrap leading-9">{letters[s]}</p>
-          </Paper>
-        ))}
-      </div>
+      <Paper padding="lg" className="space-y-3">
+        <div className="flex items-center gap-2">
+          <span className="text-2xl" aria-hidden="true">{STYLE_EMOJI[style as StyleId]}</span>
+          <strong className="text-seal">{STYLE_NAMES_ZH[style as StyleId]}</strong>
+          <span className="text-[10px] text-seal ml-auto italic">损友: {roast}</span>
+        </div>
+        <p className="text-base text-ink whitespace-pre-wrap leading-9">
+          {letter || '(这封是空的 —— 真的没回)'}
+        </p>
+      </Paper>
     </div>
   );
 }

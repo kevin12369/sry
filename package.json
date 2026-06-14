@@ -5,13 +5,9 @@
   "packageManager": "pnpm@9.0.0",
   "scripts": {
     "dev:web": "pnpm --filter @sry/web dev",
-    "dev:worker": "pnpm --filter @sry/worker dev",
     "build:web": "pnpm --filter @sry/web build",
-    "build:worker": "pnpm --filter @sry/worker build",
     "test": "pnpm -r test",
-    "e2e": "bash scripts/e2e.sh",
-    "deploy:web": "pnpm --filter @sry/web deploy",
-    "deploy:worker": "pnpm --filter @sry/worker deploy"
+    "deploy:web": "pnpm --filter @sry/web deploy"
   },
   "devDependencies": {
     "typescript": "5.4.5"

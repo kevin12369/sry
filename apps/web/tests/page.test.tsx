@@ -1,18 +1,20 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import Page from '@/app/page';
 
 vi.mock('@/hooks/useGenerate', () => ({
-  useGenerate: () => ({ loading: false, error: null, data: null, run: vi.fn() }),
+  useGenerate: () => ({ state: { stage: 'idle' }, compose: vi.fn(), reset: vi.fn() }),
+}));
+
+vi.mock('@/hooks/useShare', () => ({
+  useShareHash: () => null,
 }));
 
 describe('<Page /> smoke', () => {
-  beforeEach(() => { window.location.hash = ''; });
-
-  it('renders the chat form first', () => {
+  it('renders the scene form first', () => {
     render(<Page />);
-    expect(screen.getByText(/嘴笨助手/)).toBeInTheDocument();
-    expect(screen.getByText(/发生了什么/)).toBeInTheDocument();
+    expect(screen.getByText(/Sry\.lol/)).toBeInTheDocument();
+    expect(screen.getByText(/今晚要当什么角色/)).toBeInTheDocument();
   });
 
   it('shows a feedback email link in the footer', () => {

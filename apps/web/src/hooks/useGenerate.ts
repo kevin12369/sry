@@ -1,35 +1,35 @@
 'use client';
 import { useState } from 'react';
-import { ApiError, generateLetters, type ApiOpts } from '@/lib/api';
-import type { GenerateRequest, GenerateResponse } from '@sry/shared';
+import { SAMPLE_LETTERS } from '@/data/sample-letters';
+import { ROASTS } from '@/data/roasts';
+import { STYLES, type StyleId, type SceneId } from '@/data/prompts';
+import type { LetterEntry, SryState } from '@/lib/state-machine';
 
 export interface UseGenerate {
-  loading: boolean;
-  error: { code: string; message: string } | null;
-  data: GenerateResponse | null;
-  run: (req: GenerateRequest, opts?: ApiOpts) => Promise<void>;
+  state: SryState;
+  compose: (scene: SceneId, situation: string) => Promise<void>;
+  reset: () => void;
 }
 
 export function useGenerate(): UseGenerate {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<UseGenerate['error']>(null);
-  const [data, setData] = useState<GenerateResponse | null>(null);
+  const [state, setState] = useState<SryState>({ stage: 'idle' });
 
-  async function run(req: GenerateRequest, opts?: ApiOpts) {
-    setLoading(true); setError(null); setData(null);
-    try {
-      const out = await generateLetters(req, opts);
-      setData(out);
-    } catch (e) {
-      if (e instanceof ApiError) {
-        setError({ code: e.code, message: e.message });
-      } else {
-        setError({ code: 'network', message: (e as Error).message });
-      }
-    } finally {
-      setLoading(false);
-    }
+  async function compose(scene: SceneId, situation: string) {
+    setState({ stage: 'composing', scene, spinning: true });
+    // PR #1: 用预设范文代替 LLM 输出(无后端,无网络)
+    // PR #2: 替换为浏览器 OAI 兼容 fetch
+    await new Promise((r) => setTimeout(r, 300));
+    const letters: LetterEntry[] = STYLES.map((s: StyleId) => ({
+      style: s,
+      body: SAMPLE_LETTERS[s],
+      roast: ROASTS[s][scene],
+    }));
+    setState({ stage: 'ready', scene, letters });
   }
 
-  return { loading, error, data, run };
+  function reset() {
+    setState({ stage: 'idle' });
+  }
+
+  return { state, compose, reset };
 }

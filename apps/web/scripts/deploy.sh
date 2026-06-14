@@ -6,18 +6,11 @@
 #   2. pnpm exec wrangler pages project create sry-web --production-branch main
 #
 # Usage:
-#   # default: builds first using the env var, then deploys
-#   NEXT_PUBLIC_API_BASE=https://sry-worker.<subdomain>.workers.dev ./scripts/deploy.sh
-#
-#   # skip the build (already built):
+#   ./scripts/deploy.sh
 #   ./scripts/deploy.sh --skip-build
-#
-# This script does NOT auto-login. If wrangler auth is missing it will fail
-# loudly with a hint.
 
 set -euo pipefail
 
-# Resolve repo root (apps/web -> ../..) so we work from the web app dir.
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 WEB_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 cd "$WEB_DIR"
@@ -28,7 +21,7 @@ for arg in "$@"; do
   case "$arg" in
     --skip-build) SKIP_BUILD=1 ;;
     --help|-h)
-      sed -n '2,18p' "$0"
+      sed -n '2,16p' "$0"
       exit 0
       ;;
     *) echo "Unknown arg: $arg" >&2; exit 2 ;;
@@ -36,8 +29,7 @@ for arg in "$@"; do
 done
 
 if [ "$SKIP_BUILD" -eq 0 ]; then
-  echo "-> Building static export (NEXT_PUBLIC_API_BASE=${NEXT_PUBLIC_API_BASE:-<unset>})"
-  : "${NEXT_PUBLIC_API_BASE:?Set NEXT_PUBLIC_API_BASE to your worker URL before building (e.g. https://sry-worker.<sub>.workers.dev)}"
+  echo "-> Building static export (Sry.lol — no backend)"
   pnpm run build
 fi
 

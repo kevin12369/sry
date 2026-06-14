@@ -1,77 +1,26 @@
 'use client';
-import { useEffect, useState } from 'react';
-import Link from 'next/link';
-import { Paper } from '@/components/Paper';
+import { useState } from 'react';
 import { HandwrittenLogo } from '@/components/HandwrittenLogo';
-import { ChatForm, type ChatFormValue } from '@/components/ChatForm';
+import { SceneForm, type SceneFormValue } from '@/components/SceneForm';
 import { LetterStack } from '@/components/LetterStack';
 import { LetterPage } from '@/components/LetterPage';
 import { MailShareCard } from '@/components/MailShareCard';
-import { RejectScreen } from '@/components/RejectScreen';
-import { AllFailedScreen } from '@/components/AllFailedScreen';
 import { useGenerate } from '@/hooks/useGenerate';
 import { useShareHash } from '@/hooks/useShare';
 import { useSettings } from '@/hooks/useSettings';
-import { isLocalProviderActive, loadLocalSettings } from '@/lib/localSettings';
-import { STYLES, type Style, type StyleMap, type RejectReason, type ModelId } from '@sry/shared';
-
-const REJECT_REASONS: RejectReason[] = [
-  'real-person', 'harassment', 'too-long', 'too-short',
-  'rate-limit', 'quota-exceeded', 'kill-switch',
-];
+import { type SceneId, type StyleId, STYLE_NAMES_ZH, SCENE_NAMES_ZH } from '@/data/prompts';
+import { Paper } from '@/components/Paper';
 
 export default function Page() {
-  const [settings, setSettings] = useSettings();
-  const [letters, setLetters] = useState<StyleMap | null>(null);
-  const [opened, setOpened] = useState<Style | null>(null);
-  const [situation, setSituation] = useState<string>('');
-  const [personality, setPersonality] = useState<string>('');
-  const [useLocal, setUseLocal] = useState(false);
-  const [localLabel, setLocalLabel] = useState('');
+  const [settings] = useSettings();
   const sharedPayload = useShareHash();
-  const { loading, error, data, run } = useGenerate();
+  const { state, compose, reset } = useGenerate();
+  const [opened, setOpened] = useState<StyleId | null>(null);
 
-  useEffect(() => { if (data) setLetters(data.letters); }, [data]);
-
-  useEffect(() => {
-    if (isLocalProviderActive()) {
-      setUseLocal(true);
-      const ls = loadLocalSettings();
-      setLocalLabel(`${ls.provider} @ ${ls.baseUrl || '(no URL)'}`);
-    }
-  }, []);
-
-  async function handleSubmit(v: ChatFormValue) {
-    setSituation(v.situation);
-    setPersonality(v.personality);
-    setLetters(null);
+  async function handleSubmit(v: SceneFormValue) {
     setOpened(null);
-    const req = { situation: v.situation, personality: v.personality };
-    const model: ModelId = (useLocal
-      ? (loadLocalSettings().provider || 'ollama')
-      : settings.model) as ModelId;
-    const apiOpts: { model: ModelId; apiKey: string } = {
-      model,
-      apiKey: settings.apiKey,
-    };
-    await run(req, apiOpts);
+    await compose(v.scene, v.situation);
   }
-
-  async function handleRetry() {
-    if (!situation || !personality) return;
-    const req = { situation, personality: personality as 'sensitive' | 'direct' | 'cold' };
-    const model: ModelId = (useLocal
-      ? (loadLocalSettings().provider || 'ollama')
-      : settings.model) as ModelId;
-    await run(req, { model, apiKey: settings.apiKey });
-  }
-
-  const styles = letters ? (Object.keys(letters) as Style[]) : [];
-  const openedIndex = opened ? styles.indexOf(opened) : -1;
-  const prevStyle = styles[(openedIndex - 1 + styles.length) % styles.length];
-  const nextStyle = styles[(openedIndex + 1) % styles.length];
-  const handlePrev = () => setOpened(prevStyle);
-  const handleNext = () => setOpened(nextStyle);
 
   // 1. Share view
   if (sharedPayload) {
@@ -80,9 +29,7 @@ export default function Page() {
         <HandwrittenLogo />
         <div className="mt-6">
           <MailShareCard
-            letters={sharedPayload.letters}
-            situation={sharedPayload.situation}
-            personality={sharedPayload.personality}
+            payload={sharedPayload}
             onWriteOwn={() => { window.location.hash = ''; window.location.reload(); }}
           />
         </div>
@@ -90,129 +37,109 @@ export default function Page() {
     );
   }
 
-  // 2. Reject view
-  if (error && REJECT_REASONS.includes(error.code as RejectReason)) {
+  // 2. Error view (kept minimal — PR #1 is offline)
+  if (state.stage === 'error') {
     return (
       <main className="min-h-screen py-8 px-4 max-w-4xl mx-auto">
         <HandwrittenLogo />
-        <div className="mt-6">
-          <RejectScreen
-            reason={error.code as RejectReason}
-            onReset={() => window.location.reload()}
-          />
-        </div>
-      </main>
-    );
-  }
-
-  // 3. All-failed view
-  if (letters && STYLES.every((s) => !letters[s])) {
-    return (
-      <main className="min-h-screen py-8 px-4">
-        <HandwrittenLogo />
-        <div className="mt-6">
-          <AllFailedScreen onRetry={handleRetry} />
-        </div>
-      </main>
-    );
-  }
-
-  // 4. LetterPage view (one letter opened)
-  if (opened && letters) {
-    return (
-      <main className="min-h-screen py-8 px-4">
-        <HandwrittenLogo />
-        <div className="mt-6">
-          <LetterPage
-            style={opened}
-            body={letters[opened] ?? ''}
-            allLetters={letters}
-            onRetry={handleRetry}
-            onClose={() => setOpened(null)}
-            onPrev={handlePrev}
-            onNext={handleNext}
-            currentIndex={openedIndex + 1}
-            totalCount={styles.length}
-          />
-        </div>
-      </main>
-    );
-  }
-
-  // 5a. Loading view (waiting for the API response)
-  if (loading) {
-    return (
-      <main className="min-h-screen py-8 px-4 max-w-4xl mx-auto">
-        <HandwrittenLogo />
-        <Paper padding="lg" className="mt-6 text-center">
-          <div className="text-seal text-2xl mb-3">写信中…</div>
-          <p className="text-sm text-muted">通常 5-15 秒</p>
+        <Paper padding="lg" className="mt-6 text-center space-y-3">
+          <h2 className="text-lg font-semibold text-seal">出了点小问题</h2>
+          <p className="text-sm text-muted">{state.error}</p>
+          <button
+            onClick={reset}
+            className="bg-ink text-cream px-5 py-2 rounded hover:bg-dark transition-colors"
+          >
+            再来一次
+          </button>
         </Paper>
       </main>
     );
   }
 
-  // 5b. LetterStack view (letters ready, none opened yet)
-  if (letters) {
+  // 3. LetterPage view (one letter opened)
+  if (opened && state.stage === 'ready') {
+    const letter = state.letters.find((l) => l.style === opened);
+    if (letter) {
+      const idx = state.letters.findIndex((l) => l.style === opened);
+      const prev = state.letters[(idx - 1 + state.letters.length) % state.letters.length];
+      const next = state.letters[(idx + 1) % state.letters.length];
+      return (
+        <main className="min-h-screen py-8 px-4">
+          <HandwrittenLogo />
+          <div className="mt-6">
+            <LetterPage
+              style={opened}
+              body={letter.body}
+              roast={letter.roast}
+              scene={state.scene}
+              onClose={() => setOpened(null)}
+              onPrev={() => setOpened(prev.style)}
+              onNext={() => setOpened(next.style)}
+              currentIndex={idx + 1}
+              totalCount={state.letters.length}
+            />
+          </div>
+        </main>
+      );
+    }
+  }
+
+  // 4. Composing view
+  if (state.stage === 'composing') {
+    return (
+      <main className="min-h-screen py-8 px-4 max-w-4xl mx-auto">
+        <HandwrittenLogo />
+        <Paper padding="lg" className="mt-6 text-center">
+          <div className="text-seal text-2xl mb-3">选人设中…</div>
+          <p className="text-sm text-muted">{SCENE_NAMES_ZH[state.scene]}场景 · 1 秒就好</p>
+        </Paper>
+      </main>
+    );
+  }
+
+  // 5. LetterStack view (letters ready, none opened)
+  if (state.stage === 'ready') {
     return (
       <main className="min-h-screen py-8 px-4 max-w-4xl mx-auto">
         <HandwrittenLogo />
         <div className="mt-6">
-          <LetterStack letters={letters} onOpen={setOpened} opened={opened} />
+          <LetterStack
+            letters={state.letters}
+            onOpen={setOpened}
+            opened={opened}
+            scene={state.scene}
+          />
+        </div>
+        <div className="mt-4 flex justify-center">
+          <button
+            type="button"
+            onClick={reset}
+            className="text-sm text-muted hover:text-ink"
+          >
+            ← 回到表单
+          </button>
         </div>
       </main>
     );
   }
 
-  // 6. Default: 4-step chat
+  // 6. Default: scene form
   return (
     <main className="min-h-screen py-8 px-4 max-w-4xl mx-auto">
-      <div className="flex items-start justify-between gap-3">
-        <HandwrittenLogo />
-        <div className="flex flex-col items-end gap-1.5 mt-2">
-          <button
-            type="button"
-            data-testid="local-toggle"
-            aria-pressed={useLocal}
-            onClick={() => {
-              const next = !useLocal;
-              setUseLocal(next);
-              if (typeof localStorage !== 'undefined') {
-                localStorage.setItem('sry:useLocal', String(next));
-              }
-            }}
-            className={`text-[11px] px-2.5 py-1 rounded border ${
-              useLocal
-                ? 'border-emerald-500 text-emerald-700 bg-emerald-50'
-                : 'border-[#c9a98d] text-muted bg-white'
-            }`}
-          >
-            {useLocal ? `Local: ${localLabel}` : 'Cloud'}
-          </button>
-          <Link
-            href="/portfolio"
-            className="text-[10px] text-muted hover:text-ink"
-          >
-            About
-          </Link>
-          <Link
-            href="/settings"
-            className="text-[10px] text-muted hover:text-ink"
-          >
-            设置
-          </Link>
-        </div>
-      </div>
+      <HandwrittenLogo />
       <div className="mt-6">
-        <ChatForm onSubmit={handleSubmit} defaultTone={settings.defaultTone} />
+        <SceneForm onSubmit={handleSubmit} defaultTone={settings.defaultTone} />
       </div>
       <footer className="mt-12 text-center text-xs text-muted">
-        被误伤了?写信给{' '}
+        发不发随你。我们不管,也不想知道。给反馈写信到{' '}
         <a href="mailto:491750329@qq.com" className="text-seal hover:underline wavy-underline">
           491750329@qq.com
         </a>
-        {' '}反馈。
+        。
       </footer>
+      <p className="mt-2 text-center text-[10px] text-muted">
+        PR #1: 5 封预设范文兜底,PR #2 接入 LLM。{STYLE_NAMES_ZH.funny}/{STYLE_NAMES_ZH.sincere}/{STYLE_NAMES_ZH.deflect}/{STYLE_NAMES_ZH.legal}/{STYLE_NAMES_ZH.silent}
+      </p>
     </main>
   );
 }
