@@ -4,7 +4,8 @@ export function HandwrittenLogo({ settingsHref = '/settings' }: { settingsHref?:
   return (
     <div className="flex items-center justify-between">
       <div className="flex items-center gap-3">
-        <svg width="36" height="36" viewBox="0 0 36 36" aria-hidden="true">
+        {/* PR #2 P1 Fix 5: w-7 h-7 (28) 替代 w-8 h-8 (36),与正文 md=24 视觉同级 */}
+        <svg data-header-logo width="28" height="28" viewBox="0 0 36 36" className="w-7 h-7" aria-hidden="true">
           <circle cx="18" cy="18" r="16" fill="#c75d4a" />
           <circle cx="18" cy="18" r="13" fill="none" stroke="#a84938" strokeWidth="0.5" strokeDasharray="1 1" />
           <text x="18" y="22" fontSize="14" textAnchor="middle" fill="#fdf6ec"

@@ -57,7 +57,7 @@ export function Roadmap() {
     <section
       aria-labelledby="roadmap-title"
       data-section="roadmap"
-      className="max-w-6xl mx-auto px-4 py-12"
+      className="max-w-6xl mx-auto px-4 pt-16 md:pt-20 pb-8"
     >
       <h2
         id="roadmap-title"
@@ -74,7 +74,7 @@ export function Roadmap() {
           >
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
-                <span className="text-2xl" aria-hidden="true">{p.badge}</span>
+                <span className="text-2xl leading-none" aria-hidden="true">{p.badge}</span>
                 <span className="text-lg font-bold text-ink">{p.label}</span>
               </div>
               <span className="text-[10px] uppercase tracking-wider text-muted">

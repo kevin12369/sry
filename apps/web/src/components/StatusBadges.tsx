@@ -20,7 +20,7 @@ export function StatusBadges() {
     <section
       aria-label="项目状态徽章"
       data-section="status-badges"
-      className="max-w-6xl mx-auto px-4 py-4"
+      className="max-w-6xl mx-auto px-4 py-16 md:py-20"
     >
       <div className="flex flex-wrap items-center justify-center gap-2">
         {BADGES.map((b) => (

@@ -32,7 +32,7 @@ export function FAQ() {
     <section
       aria-labelledby="faq-title"
       data-section="faq"
-      className="max-w-4xl mx-auto px-4 py-12"
+      className="max-w-4xl mx-auto px-4 pt-16 md:pt-20 pb-8 mb-8"
     >
       <h2
         id="faq-title"

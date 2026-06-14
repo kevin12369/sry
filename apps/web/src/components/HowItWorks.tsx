@@ -33,7 +33,7 @@ export function HowItWorks() {
     <section
       aria-labelledby="how-it-works-title"
       data-section="how-it-works"
-      className="max-w-6xl mx-auto px-4 py-12"
+      className="max-w-6xl mx-auto px-4 py-16 md:py-20"
     >
       <h2
         id="how-it-works-title"
@@ -49,7 +49,8 @@ export function HowItWorks() {
             className="rounded-paper border border-[#d4b896] bg-cream p-5 shadow-paper relative"
           >
             <div className="flex items-start justify-between mb-3">
-              <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-seal text-cream font-bold text-sm">
+              {/* PR #2 P1 Fix 1: 步骤徽章 w-10 h-10 (40px) 与 ChatStep 一致 */}
+              <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-seal text-cream font-bold text-lg leading-none">
                 {s.num}
               </span>
               <span className="text-[10px] uppercase tracking-wider text-muted">

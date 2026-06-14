@@ -33,7 +33,7 @@ export function WhoIsItFor() {
     <section
       aria-labelledby="who-title"
       data-section="who"
-      className="max-w-6xl mx-auto px-4 py-12"
+      className="max-w-6xl mx-auto px-4 py-16 md:py-20"
     >
       <h2
         id="who-title"
@@ -48,7 +48,7 @@ export function WhoIsItFor() {
             data-persona={idx + 1}
             className="rounded-paper border border-[#d4b896] bg-cream p-5 md:p-6 shadow-paper flex flex-col min-h-[200px]"
           >
-            <div className="text-4xl w-10 h-10 flex items-center justify-center mb-2" aria-hidden="true">{p.emoji}</div>
+            <div className="text-4xl w-10 h-10 flex items-center justify-center mb-2 leading-none" aria-hidden="true">{p.emoji}</div>
             <h3 className="text-base font-bold text-ink">{p.title}</h3>
             <blockquote className="mt-2 text-xs italic text-seal border-l-2 border-seal pl-2">
               &ldquo;{p.quote}&rdquo;

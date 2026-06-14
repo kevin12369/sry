@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { STYLES, STYLE_NAMES_ZH, type StyleId } from '@/data/prompts';
 import { SAMPLE_LETTERS } from '@/data/sample-letters';
+import { Dice } from './icons';
 
 interface Props {
   onSpin: (style: StyleId) => void;
@@ -46,7 +47,11 @@ export function PersonaRoulette({ onSpin, disabled }: Props) {
         style={{ transform: `rotate(${angle}deg)`, transition: spinning ? 'transform 1.5s cubic-bezier(0.2, 0.8, 0.2, 1)' : 'none' }}
       >
         <span className="block" style={{ transform: `rotate(${-angle}deg)`, transition: spinning ? 'transform 1.5s cubic-bezier(0.2, 0.8, 0.2, 1)' : 'none' }}>
-          SPIN
+          {/* PR #2 P2 Fix 7: SPIN 按钮 🎲 改 inline SVG + 容器 flex gap-2 leading-none */}
+          <span className="inline-flex items-center gap-2 leading-none">
+            <Dice size={20} aria-hidden="true" />
+            <span>SPIN</span>
+          </span>
         </span>
       </button>
       <p className="text-xs text-muted">点一下试试今晚当什么人</p>

@@ -45,7 +45,7 @@ export function FunElements() {
     <section
       aria-labelledby="fun-elements-title"
       data-section="fun-elements"
-      className="max-w-6xl mx-auto px-4 py-12"
+      className="max-w-6xl mx-auto px-4 py-16 md:py-20"
     >
       <h2
         id="fun-elements-title"
@@ -63,7 +63,7 @@ export function FunElements() {
             data-fun-card={idx + 1}
             className="rounded-paper border border-[#d4b896] bg-cream p-5 shadow-paper flex flex-col min-h-[240px]"
           >
-            <div className="text-4xl w-10 h-10 flex items-center justify-center mb-2" aria-hidden="true">{c.emoji}</div>
+            <div className="text-4xl w-10 h-10 flex items-center justify-center mb-2 leading-none" aria-hidden="true">{c.emoji}</div>
             <h3 className="text-base font-bold text-ink">{c.title}</h3>
             <p className="mt-2 text-xs text-ink/80 leading-relaxed flex-1">{c.desc}</p>
             <div

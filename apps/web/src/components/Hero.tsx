@@ -7,7 +7,7 @@ export function Hero() {
     <section
       aria-labelledby="sry-hero-title"
       data-section="hero"
-      className="max-w-6xl mx-auto px-4 py-12 md:py-16"
+      className="max-w-6xl mx-auto px-4 py-16 md:py-20"
     >
       <div className="max-w-3xl space-y-5">
         <p className="text-xs uppercase tracking-widest text-seal font-semibold">

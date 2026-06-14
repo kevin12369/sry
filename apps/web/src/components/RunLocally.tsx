@@ -20,7 +20,7 @@ export function RunLocally() {
       data-section="run-locally"
       className="bg-zinc-900 text-zinc-100"
     >
-      <div className="max-w-6xl mx-auto px-4 py-12">
+      <div className="max-w-6xl mx-auto px-4 py-16 md:py-20">
         <h2
           id="run-locally-title"
           className="text-2xl md:text-3xl font-bold text-center mb-3"

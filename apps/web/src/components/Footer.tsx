@@ -44,7 +44,7 @@ export function Footer() {
   return (
     <footer
       data-section="footer"
-      className="bg-zinc-900 text-zinc-300"
+      className="bg-zinc-900 text-zinc-300 mt-8 border-t border-zinc-800"
     >
       <div className="max-w-6xl mx-auto px-4 py-10">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">

@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { ChatStep } from './ChatStep';
 import { ProgressSeal } from './ProgressSeal';
 import { Paper } from './Paper';
+import { TheaterMasks } from './icons';
 import { SCENES, SCENE_NAMES_ZH, STYLES, STYLE_NAMES_ZH, type SceneId, type StyleId } from '@/data/prompts';
 import type { Tone } from '@/hooks/useSettings';
 
@@ -84,8 +85,15 @@ export function SceneForm({
                     onChange={() => setScene(s)}
                     className="sr-only"
                   />
-                  <span className="font-medium">
-                    <span aria-hidden="true" className="mr-1">{SCENE_EMOJI[s]}</span>
+                  {/* PR #2 P1 Fix 4: 🎭 改 SVG(其他 5 个 emoji 保留,统一盒模型) */}
+                  <span className="font-medium inline-flex items-center gap-1 justify-center">
+                    <span
+                      aria-hidden="true"
+                      data-scene-icon={s}
+                      className="inline-flex items-center justify-center h-[1em] w-[1em] leading-none"
+                    >
+                      {s === 'apology' ? <TheaterMasks size={20} /> : SCENE_EMOJI[s]}
+                    </span>
                     {SCENE_NAMES_ZH[s]}
                   </span>
                 </label>
