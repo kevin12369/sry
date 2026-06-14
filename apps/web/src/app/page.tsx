@@ -5,9 +5,11 @@ import { SceneForm, type SceneFormValue } from '@/components/SceneForm';
 import { LetterStack } from '@/components/LetterStack';
 import { LetterPage } from '@/components/LetterPage';
 import { MailShareCard } from '@/components/MailShareCard';
+import { MemeShareCard } from '@/components/MemeShareCard';
+import { PersonaRoulette } from '@/components/PersonaRoulette';
 import { ByokSettings } from '@/components/ByokSettings';
 import { useGenerate } from '@/hooks/useGenerate';
-import { useShareHash } from '@/hooks/useShare';
+import { useShareHash, useMemeHash } from '@/hooks/useShare';
 import { useSettings } from '@/hooks/useSettings';
 import { type SceneId, type StyleId, STYLE_NAMES_ZH, SCENE_NAMES_ZH } from '@/data/prompts';
 import { Paper } from '@/components/Paper';
@@ -16,12 +18,21 @@ export default function Page() {
   const [settings] = useSettings();
   const [showSettings, setShowSettings] = useState(false);
   const sharedPayload = useShareHash();
+  const memePayload = useMemeHash();
   const { state, compose, reset } = useGenerate();
   const [opened, setOpened] = useState<StyleId | null>(null);
 
   async function handleSubmit(v: SceneFormValue) {
     setOpened(null);
     await compose(v.scene, v.situation);
+  }
+
+  function handleSpin(style: StyleId) {
+    // PR #3: SPIN previews a sample letter for the chosen style.
+    // We don't burn LLM quota; for now we no-op and let the user
+    // continue through SceneForm. The component itself still spins
+    // and announces the chosen style.
+    void style;
   }
 
   if (sharedPayload) {
@@ -31,6 +42,20 @@ export default function Page() {
         <div className="mt-6">
           <MailShareCard
             payload={sharedPayload}
+            onWriteOwn={() => { window.location.hash = ''; window.location.reload(); }}
+          />
+        </div>
+      </main>
+    );
+  }
+
+  if (memePayload) {
+    return (
+      <main className="min-h-screen py-8 px-4">
+        <HandwrittenLogo />
+        <div className="mt-6">
+          <MemeShareCard
+            payload={memePayload}
             onWriteOwn={() => { window.location.hash = ''; window.location.reload(); }}
           />
         </div>
@@ -126,6 +151,9 @@ export default function Page() {
   return (
     <main className="min-h-screen py-8 px-4 max-w-4xl mx-auto">
       <HandwrittenLogo />
+      <div className="mt-6">
+        <PersonaRoulette onSpin={handleSpin} />
+      </div>
       <div className="mt-6">
         <SceneForm onSubmit={handleSubmit} defaultTone={settings.defaultTone} />
       </div>

@@ -2,6 +2,9 @@
 import { useState } from 'react';
 import { Paper } from './Paper';
 import { SealButton } from './SealButton';
+import { RoastBadge } from './RoastBadge';
+import { ReadReceipt } from './ReadReceipt';
+import { SCENE_EMOJI } from './SceneForm';
 import { tokens } from '@/lib/tokens';
 import { SCENE_NAMES_ZH, STYLE_EMOJI, STYLE_NAMES_ZH, type SceneId, type StyleId } from '@/data/prompts';
 import { buildShareUrl } from '@/lib/share';
@@ -21,6 +24,7 @@ export function LetterPage({
 }) {
   const emoji = STYLE_EMOJI[style];
   const [shareState, setShareState] = useState<'idle' | 'copied'>('idle');
+  const [showEmpty, setShowEmpty] = useState(false);
 
   async function copyThis() {
     await navigator.clipboard?.writeText(body);
@@ -43,9 +47,19 @@ export function LetterPage({
 
       <div className="p-6 sm:p-8">
         <div className="mb-4 pb-3 border-b border-dashed border-[#c9a98d]">
-          <div className="text-xl font-semibold text-ink">致 您,</div>
+          <div className="flex items-center gap-2">
+            <span
+              data-scene-chip
+              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-cream border border-[#c9a98d] text-xs text-ink"
+            >
+              <span aria-hidden="true">{SCENE_EMOJI[scene]}</span>
+              {SCENE_NAMES_ZH[scene]}
+            </span>
+            <span className="text-xs text-muted">{body.length} 字</span>
+          </div>
+          <div className="text-xl font-semibold text-ink mt-2">致 您,</div>
           <div className="text-xs text-muted mt-1">
-            <span>{STYLE_NAMES_ZH[style]}</span>版 · {SCENE_NAMES_ZH[scene]} · {body.length} 字
+            <span>{STYLE_NAMES_ZH[style]}</span>版
           </div>
         </div>
 
@@ -59,14 +73,19 @@ export function LetterPage({
         </div>
 
         <div className="pr-24 sm:pr-28">
-          <pre className="whitespace-pre-wrap font-sans text-base leading-9 text-ink">
+          {style === 'silent' && !showEmpty ? (
+            <ReadReceipt onComplete={() => setShowEmpty(true)} />
+          ) : (
+            <pre className="whitespace-pre-wrap font-sans text-base leading-9 text-ink">
 {body || '(这封是空的 —— 真的没回)'}
-          </pre>
+            </pre>
+          )}
         </div>
 
-        <div className="mt-4 p-3 border border-seal border-dashed rounded bg-[#fdf0e6]">
+        <div className="mt-4 p-3 border border-seal border-dashed rounded bg-[#fdf0e6] space-y-2">
           <div className="text-[10px] text-seal uppercase tracking-wide">损友点评</div>
-          <div className="text-sm text-ink mt-1" data-roast>{roast}</div>
+          <div className="text-sm text-ink" data-roast>{roast}</div>
+          <RoastBadge scene={scene} style={style} />
         </div>
 
         <div className="mt-6 pt-4 border-t border-[#d4b896] flex items-center gap-2 flex-wrap">

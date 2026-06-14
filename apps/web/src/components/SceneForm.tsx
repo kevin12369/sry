@@ -20,6 +20,15 @@ const TONE_TO_STYLE: Record<Tone, StyleId> = {
   '已读不回': 'silent',
 };
 
+export const SCENE_EMOJI: Record<import('@/data/prompts').SceneId, string> = {
+  apology: '🎭',
+  thanks: '💌',
+  rejection: '🚪',
+  confession: '💘',
+  resignation: '📤',
+  roast: '⚔️',
+};
+
 export function SceneForm({
   onSubmit,
   defaultTone = '真诚',
@@ -75,7 +84,10 @@ export function SceneForm({
                     onChange={() => setScene(s)}
                     className="sr-only"
                   />
-                  <span className="font-medium">{SCENE_NAMES_ZH[s]}</span>
+                  <span className="font-medium">
+                    <span aria-hidden="true" className="mr-1">{SCENE_EMOJI[s]}</span>
+                    {SCENE_NAMES_ZH[s]}
+                  </span>
                 </label>
               </Paper>
             ))}

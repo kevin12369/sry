@@ -8,6 +8,7 @@ vi.mock('@/hooks/useGenerate', () => ({
 
 vi.mock('@/hooks/useShare', () => ({
   useShareHash: () => null,
+  useMemeHash: () => null,
 }));
 
 describe('<Page /> smoke', () => {

@@ -1,5 +1,14 @@
-import { describe, it, expect } from 'vitest';
-import { encodeShare, decodeShare, buildShareUrl, parseShareUrl } from '@/lib/share';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import {
+  encodeShare,
+  decodeShare,
+  buildShareUrl,
+  parseShareUrl,
+  encodeMemeShare,
+  decodeMemeShare,
+  buildMemeShareUrl,
+  parseMemeUrl,
+} from '@/lib/share';
 
 const payload = {
   scene: 'apology' as const,
@@ -36,5 +45,53 @@ describe('encodeShare / decodeShare (PR #1 granularity)', () => {
 
   it('parseShareUrl returns null when no hash', () => {
     expect(parseShareUrl()).toBeNull();
+  });
+});
+
+describe('meme share (PR #3: buildMemeShareUrl + parseMemeUrl)', () => {
+  beforeEach(() => {
+    window.location.hash = '';
+  });
+
+  afterEach(() => {
+    window.location.hash = '';
+  });
+
+  it('encodeMemeShare + decodeMemeShare round-trip with kind:"meme"', () => {
+    const hash = encodeMemeShare(payload);
+    expect(hash).not.toMatch(/[+/=]/);
+    const decoded = decodeMemeShare(hash);
+    expect(decoded).not.toBeNull();
+    expect(decoded?.kind).toBe('meme');
+    expect(decoded?.scene).toBe(payload.scene);
+    expect(decoded?.letter).toBe(payload.letter);
+  });
+
+  it('buildMemeShareUrl embeds #meme= hash', () => {
+    const url = buildMemeShareUrl(payload);
+    expect(url).toMatch(/#meme=/);
+  });
+
+  it('parseMemeUrl reads the new #meme= format', () => {
+    const url = buildMemeShareUrl(payload);
+    window.location.hash = url.split('#')[1] ?? '';
+    const parsed = parseMemeUrl();
+    expect(parsed).not.toBeNull();
+    expect(parsed?.kind).toBe('meme');
+    expect(parsed?.scene).toBe(payload.scene);
+  });
+
+  it('parseMemeUrl also accepts the legacy #share= format and tags it meme', () => {
+    const url = buildShareUrl(payload);
+    window.location.hash = url.split('#')[1] ?? '';
+    const parsed = parseMemeUrl();
+    expect(parsed).not.toBeNull();
+    expect(parsed?.kind).toBe('meme');
+    expect(parsed?.scene).toBe(payload.scene);
+  });
+
+  it('parseMemeUrl returns null when no share/meme hash is present', () => {
+    window.location.hash = '';
+    expect(parseMemeUrl()).toBeNull();
   });
 });
