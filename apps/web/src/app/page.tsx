@@ -5,6 +5,7 @@ import { SceneForm, type SceneFormValue } from '@/components/SceneForm';
 import { LetterStack } from '@/components/LetterStack';
 import { LetterPage } from '@/components/LetterPage';
 import { MailShareCard } from '@/components/MailShareCard';
+import { ByokSettings } from '@/components/ByokSettings';
 import { useGenerate } from '@/hooks/useGenerate';
 import { useShareHash } from '@/hooks/useShare';
 import { useSettings } from '@/hooks/useSettings';
@@ -13,6 +14,7 @@ import { Paper } from '@/components/Paper';
 
 export default function Page() {
   const [settings] = useSettings();
+  const [showSettings, setShowSettings] = useState(false);
   const sharedPayload = useShareHash();
   const { state, compose, reset } = useGenerate();
   const [opened, setOpened] = useState<StyleId | null>(null);
@@ -22,7 +24,6 @@ export default function Page() {
     await compose(v.scene, v.situation);
   }
 
-  // 1. Share view
   if (sharedPayload) {
     return (
       <main className="min-h-screen py-8 px-4">
@@ -37,7 +38,6 @@ export default function Page() {
     );
   }
 
-  // 2. Error view (kept minimal — PR #1 is offline)
   if (state.stage === 'error') {
     return (
       <main className="min-h-screen py-8 px-4 max-w-4xl mx-auto">
@@ -56,7 +56,6 @@ export default function Page() {
     );
   }
 
-  // 3. LetterPage view (one letter opened)
   if (opened && state.stage === 'ready') {
     const letter = state.letters.find((l) => l.style === opened);
     if (letter) {
@@ -84,7 +83,6 @@ export default function Page() {
     }
   }
 
-  // 4. Composing view
   if (state.stage === 'composing') {
     return (
       <main className="min-h-screen py-8 px-4 max-w-4xl mx-auto">
@@ -97,7 +95,6 @@ export default function Page() {
     );
   }
 
-  // 5. LetterStack view (letters ready, none opened)
   if (state.stage === 'ready') {
     return (
       <main className="min-h-screen py-8 px-4 max-w-4xl mx-auto">
@@ -110,6 +107,9 @@ export default function Page() {
             scene={state.scene}
           />
         </div>
+        <p className="mt-3 text-center text-[10px] text-muted">
+          来源: {state.source === 'llm' ? 'LLM 实时生成' : state.source === 'mixed' ? 'LLM + 预设范文兜底' : '预设范文'}
+        </p>
         <div className="mt-4 flex justify-center">
           <button
             type="button"
@@ -123,13 +123,26 @@ export default function Page() {
     );
   }
 
-  // 6. Default: scene form
   return (
     <main className="min-h-screen py-8 px-4 max-w-4xl mx-auto">
       <HandwrittenLogo />
       <div className="mt-6">
         <SceneForm onSubmit={handleSubmit} defaultTone={settings.defaultTone} />
       </div>
+      <div className="mt-6 text-center">
+        <button
+          type="button"
+          onClick={() => setShowSettings((s) => !s)}
+          className="text-xs text-muted hover:text-ink"
+        >
+          {showSettings ? '收起' : '展开'} LLM 设置 (BYOK)
+        </button>
+      </div>
+      {showSettings && (
+        <div className="mt-4">
+          <ByokSettings />
+        </div>
+      )}
       <footer className="mt-12 text-center text-xs text-muted">
         发不发随你。我们不管,也不想知道。给反馈写信到{' '}
         <a href="mailto:491750329@qq.com" className="text-seal hover:underline wavy-underline">
@@ -138,7 +151,7 @@ export default function Page() {
         。
       </footer>
       <p className="mt-2 text-center text-[10px] text-muted">
-        PR #1: 5 封预设范文兜底,PR #2 接入 LLM。{STYLE_NAMES_ZH.funny}/{STYLE_NAMES_ZH.sincere}/{STYLE_NAMES_ZH.deflect}/{STYLE_NAMES_ZH.legal}/{STYLE_NAMES_ZH.silent}
+        PR #2: 5×6 prompt table + LLM 直连(BYOK){STYLE_NAMES_ZH.funny}/{STYLE_NAMES_ZH.sincere}/{STYLE_NAMES_ZH.deflect}/{STYLE_NAMES_ZH.legal}/{STYLE_NAMES_ZH.silent}
       </p>
     </main>
   );

@@ -6,10 +6,12 @@ export interface LetterEntry {
   roast: string;
 }
 
+export type LettersSource = 'sample' | 'llm' | 'mixed';
+
 export type SryState =
   | { stage: 'idle' }
   | { stage: 'composing'; scene: SceneId; spinning: boolean }
-  | { stage: 'ready'; scene: SceneId; letters: LetterEntry[] }
+  | { stage: 'ready'; scene: SceneId; letters: LetterEntry[]; source: LettersSource }
   | { stage: 'error'; error: string };
 
 export const initialState: SryState = { stage: 'idle' };
@@ -18,8 +20,8 @@ export function toComposing(scene: SceneId, spinning: boolean): SryState {
   return { stage: 'composing', scene, spinning };
 }
 
-export function toReady(scene: SceneId, letters: LetterEntry[]): SryState {
-  return { stage: 'ready', scene, letters };
+export function toReady(scene: SceneId, letters: LetterEntry[], source: LettersSource = 'sample'): SryState {
+  return { stage: 'ready', scene, letters, source };
 }
 
 export function toError(error: string): SryState {

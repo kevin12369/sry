@@ -47,3 +47,26 @@ describe('state-machine invariants', () => {
     expect(stages.size).toBe(4);
   });
 });
+
+describe('state-machine source attribution (PR #2)', () => {
+  it('ready defaults source to sample', () => {
+    const s = toReady('apology', sampleLetters);
+    if (s.stage === 'ready') {
+      expect(s.source).toBe('sample');
+    }
+  });
+
+  it('ready accepts explicit source: llm', () => {
+    const s = toReady('apology', sampleLetters, 'llm');
+    if (s.stage === 'ready') {
+      expect(s.source).toBe('llm');
+    }
+  });
+
+  it('ready accepts source: mixed (LLM partial fallback)', () => {
+    const s = toReady('roast', sampleLetters, 'mixed');
+    if (s.stage === 'ready') {
+      expect(s.source).toBe('mixed');
+    }
+  });
+});

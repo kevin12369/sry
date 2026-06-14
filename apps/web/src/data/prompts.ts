@@ -29,6 +29,8 @@ export const STYLE_EMOJI: Record<StyleId, string> = {
   silent: '👻',
 };
 
+// 5 风格 × 6 场景 = 30 风格的"语气短语"
+// 这是用户可见的"风格 × 场景"组合描述, 也是 system prompt 拼接的关键中间产物
 export const PROMPTS: Record<StyleId, Record<SceneId, string>> = {
   funny: {
     apology: '用搞笑自嘲、轻松俏皮的方式',
